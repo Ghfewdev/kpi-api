@@ -5,9 +5,10 @@ const bodyParser = require('body-parser')
 const jsonParser = bodyParser.json();
 const mysql = require('mysql2')
 const conn = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    database: 'test1'
+    host: 'sql6.freemysqlhosting.net',
+    user: 'sql6634670',
+    password: "C27ulEwxb6",
+    database: 'sql6634670'
 })
 const bcrypt = require('bcrypt');
 const saltRounds = 10;

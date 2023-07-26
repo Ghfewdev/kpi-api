@@ -12,10 +12,11 @@ const conn = mysql.createConnection({
 })
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 const secect = 'abcdefg'
 
 app.use(cors());
+//app.use(jsonParser);
 
 // users
 app.post('/register', jsonParser, (req, res, next) => {
@@ -244,6 +245,14 @@ app.get('/report/api', (req, res) => {
         res.json(tables)
     })
 });
+
+//detail+form 
+app.get("/checked", jsonParser, (req, res, next) => {
+    const sql = "SELECT formed.us_id, detail.fm_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id"
+    conn.query(sql, (req, results, fields) => {
+        res.send(results)
+    })
+})
 
 const Port = process.env.Port || 3000
 app.listen(Port, jsonParser, () => {

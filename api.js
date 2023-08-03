@@ -193,10 +193,11 @@ app.get("/all/:id", jsonParser, (req, res, next) => {
         })
 })
 
-app.get("/all/user/:id", jsonParser, (req, res, next) => {
+app.get("/all/hp/:user/:id", jsonParser, (req, res, next) => {
+    const user = req.params.user
     const id = req.params.id
-    conn.query("SELECT * FROM detail RIGHT JOIN formed ON detail.de_id = formed.de_id RIGHT JOIN users ON formed.us_id = users.us_id RIGHT JOIN form on form.fm_id = detail.fm_id WHERE users.us_id = ?",
-        [id], (err, all, fields) => {
+    conn.query("SELECT * FROM detail RIGHT JOIN formed ON detail.de_id = formed.de_id RIGHT JOIN users ON formed.us_id = users.us_id RIGHT JOIN form on form.fm_id = detail.fm_id WHERE users.us_id = ? AND detail.fm_id = ?",
+        [user, id], (err, all, fields) => {
             all = all.map(d => {
                 if (d.fd_date != null)
                     d.fd_date = d.fd_date.toISOString().split('T')[0];

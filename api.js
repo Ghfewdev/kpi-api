@@ -5,10 +5,10 @@ const bodyParser = require('body-parser')
 const jsonParser = bodyParser.json();
 const mysql = require('mysql2')
 const conn = mysql.createConnection({
-    host: 'sql6.freemysqlhosting.net',
-    user: 'sql6634670',
-    password: "C27ulEwxb6",
-    database: 'sql6634670'
+    host: 'sql6.freesqldatabase.com',
+    user: 'sql6637143',
+    password: "jN4hM86WTZ",
+    database: 'sql6637143'
 })
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -137,8 +137,8 @@ app.get("/detail/:id", jsonParser, (req, res, next) => {
 
 //formed
 app.post('/formed/fill', jsonParser, (req, res, next) => {
-    const date = `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}`
-    const time = `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`
+    const date = `${new Date().getUTCFullYear()}-${new Date().getUTCMonth() + 1}-${new Date().getUTCDate()}`
+    const time = `${new Date().getUTCHours() + 7}:${new Date().getUTCMinutes()}:${new Date().getUTCSeconds()}`
     var Isql = "INSERT INTO formed (us_id, de_id, fd_date, fd_time) VALUES (?, ?, ?, ?)"
     var IV = [req.body.user, req.body.detail, date, time]
     conn.execute(Isql, IV, (err, results, fields) => {

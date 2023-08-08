@@ -119,8 +119,8 @@ app.put("/update/form", jsonParser, (req, res, next) => {
 
 //detail
 app.post('/form/fill', jsonParser, (req, res, next) => {
-    var Isql = "INSERT INTO detail (fm_id, de_qur, de_paras, de_ans, de_result) VALUES (?, ?, ?, ?, ?)"
-    var IV = [req.body.formid, req.body.qur, req.body.paras, req.body.ans, req.body.result]
+    var Isql = "INSERT INTO detail (fm_id, de_qur, de_paras, de_des, de_ans, de_result) VALUES (?, ?, ?, ?, ?, ?)"
+    var IV = [req.body.formid, req.body.qur, req.body.paras, req.body.des, req.body.ans, req.body.result]
     conn.execute(Isql, IV, (err, results, fields) => {
         if (err) {
             res.json({ status: 'error', massage: err })

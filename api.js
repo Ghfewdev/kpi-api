@@ -21,7 +21,7 @@ app.use(cors());
 // users
 app.post('/register', jsonParser, (req, res, next) => {
     bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
-        var Isql = "INSERT INTO users (us_email, us_password, us_name, us_agency) VALUES (?, ?, ?, ?)"
+        var Isql = "INSERT INTO users (us_email, us_password, us_name, us_agency, us_level) VALUES (?, ?, ?, ?, 0)"
         var IV = [req.body.email, hash, req.body.name, req.body.agency]
         conn.execute(Isql, IV, (err, results, fields) => {
             if (err) {
@@ -102,6 +102,18 @@ app.get("/form/:id", jsonParser, (req, res, next) => {
     const id = req.params.id
     conn.query("SELECT * FROM form WHERE fm_id = ?", [id], (err, form, fields) => {
         res.send(form);
+    })
+})
+
+app.put("/update/form", jsonParser, (req, res, next) => {
+    var sql = "UPDATE form SET fm_name = ?, fm_solve= ?, fm_method = ?, fm_define = ? WHERE fm_id = ?"
+    const up = [req.body.name, req.body.solve, req.body.method, req.body.def, req.body.id]
+    conn.execute(sql, up, (err, upd, fields) => {
+        if (err) {
+            res.json({ status: 'error', massage: err })
+            return
+        } else
+            res.json({ status: 'ok' })
     })
 })
 

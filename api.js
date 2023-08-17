@@ -275,6 +275,15 @@ app.get("/checked/:de", jsonParser, (req, res, next) => {
     })
 })
 
+app.get("/checked/id/:fm/:de", jsonParser, (req, res, next) => {
+    var fm = req.params.fm
+    var de = req.params.de
+    const sql = "SELECT * FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id WHERE detail.fm_id = ? AND detail.de_qur = ? ORDER BY formed.us_id ASC"
+    conn.query(sql, [fm, de], (req, results, fields) => {
+        res.send(results)
+    })
+})
+
 const Port = process.env.Port || 3000
 app.listen(Port, jsonParser, () => {
     console.log(`start server on Port ${Port}`)

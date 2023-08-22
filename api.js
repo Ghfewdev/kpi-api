@@ -106,8 +106,8 @@ app.get("/form/:id", jsonParser, (req, res, next) => {
 })
 
 app.put("/update/form", jsonParser, (req, res, next) => {
-    var sql = "UPDATE form SET fm_name = ?, fm_solve= ?, fm_method = ?, fm_define = ? WHERE fm_id = ?"
-    const up = [req.body.name, req.body.solve, req.body.method, req.body.def, req.body.id]
+    var sql = "UPDATE form SET fm_name = ?, fm_solve= ?, fm_define = ? WHERE fm_id = ?"
+    const up = [req.body.name, req.body.solve, req.body.def, req.body.id]
     conn.execute(sql, up, (err, upd, fields) => {
         if (err) {
             res.json({ status: 'error', massage: err })
@@ -176,6 +176,26 @@ app.get("/formed/:id", jsonParser, (req, res, next) => {
     const id = req.params.id
     conn.query("SELECT * FROM formed WHERE fd_id = ?", [id], (err, formed, fields) => {
         res.send(formed)
+    })
+})
+
+//event
+app.get("/event", jsonParser, (req, res, next) => {
+    conn.query("SELECT * FROM event", (err, ev, fields) => {
+        res.send(ev)
+    })
+})
+
+app.post("/ev/add", jsonParser, (req, res, next) => {
+    const sql = "INSERT INTO event (ev_id, ev_name, ev_res, ev_status, ev_budget, ev_buded, ev_point, ev_target, ev_result , ev_problem, ev_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const val = [req.body.evid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.evimg];
+    conn.execute(sql, val, (err, ev, fields) => {
+        if (err) {
+            res.json({status: "erorr", massage: err});
+            return;
+        }else {
+            res.json({status: "ok"})
+        }
     })
 })
 

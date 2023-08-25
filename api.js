@@ -119,8 +119,8 @@ app.put("/update/form", jsonParser, (req, res, next) => {
 
 //detail
 app.post('/form/fill', jsonParser, (req, res, next) => {
-    var Isql = "INSERT INTO detail (fm_id, de_qur, de_paras, de_des, de_ans, de_result) VALUES (?, ?, ?, ?, ?, ?)"
-    var IV = [req.body.formid, req.body.qur, req.body.paras, req.body.des, req.body.ans, req.body.result]
+    var Isql = "INSERT INTO detail (fm_id, de_qur, de_paras, de_ans, de_result) VALUES (?, ?, ?, ?, ?)"
+    var IV = [req.body.formid, req.body.qur, req.body.paras, req.body.ans, req.body.result]
     conn.execute(Isql, IV, (err, results, fields) => {
         if (err) {
             res.json({ status: 'error', massage: err })
@@ -198,8 +198,8 @@ app.get("/event", jsonParser, (req, res, next) => {
 })
 
 app.post("/ev/add", jsonParser, (req, res, next) => {
-    const sql = "INSERT INTO event (de_id, ev_name, ev_res, ev_status, ev_budget, ev_buded, ev_point, ev_target, ev_result , ev_problem, ev_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    const val = [req.body.deid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.evimg];
+    const sql = "INSERT INTO event (de_id, fms_id, ev_name, ev_res, ev_status, ev_budget, ev_buded, ev_point, ev_target, ev_result , ev_problem, ev_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const val = [req.body.deid, req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.evimg];
     conn.execute(sql, val, (err, ev, fields) => {
         if (err) {
             res.json({status: "erorr", massage: err});

@@ -212,7 +212,7 @@ app.post("/ev/add", jsonParser, (req, res, next) => {
 
 //all
 app.get("/all", jsonParser, (req, res, next) => {
-    conn.query("SELECT * FROM detail RIGHT JOIN formed ON detail.de_id = formed.de_id RIGHT JOIN users ON formed.us_id = users.us_id RIGHT JOIN form on form.fm_id = detail.fm_id;",
+    conn.query("SELECT * FROM detail RIGHT JOIN formed ON detail.de_id = formed.de_id RIGHT JOIN users ON formed.us_id = users.us_id RIGHT JOIN form on form.fm_id = detail.fm_id ORDER BY users.us_id ASC;",
         (err, all, fields) => {
             all = all.map(d => {
                 if (d.fd_date != null)
@@ -225,7 +225,7 @@ app.get("/all", jsonParser, (req, res, next) => {
 
 app.get("/all/:id", jsonParser, (req, res, next) => {
     const id = req.params.id
-    conn.query("SELECT * FROM detail RIGHT JOIN formed ON detail.de_id = formed.de_id RIGHT JOIN users ON formed.us_id = users.us_id RIGHT JOIN form on form.fm_id = detail.fm_id WHERE detail.fm_id = ?",
+    conn.query("SELECT * FROM detail RIGHT JOIN formed ON detail.de_id = formed.de_id RIGHT JOIN users ON formed.us_id = users.us_id RIGHT JOIN form on form.fm_id = detail.fm_id WHERE detail.fm_id = ? ORDER BY users.us_id ASC",
         [id], (err, all, fields) => {
             all = all.map(d => {
                 if (d.fd_date != null)

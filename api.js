@@ -210,6 +210,40 @@ app.post("/ev/add", jsonParser, (req, res, next) => {
     })
 })
 
+//result
+app.get("/result", jsonParser, (req, res, next) => {
+    conn.query("SELECT * FROM result", (err, resu, fields) => {
+        res.send(resu);
+    })
+})
+
+app.post("/result/add", jsonParser, (req, res, next) => {
+    var Isql = "INSERT INTO result (fm_id) VALUES (?)"
+    var IV = [req.body.fmid]
+    conn.execute(Isql, IV, (err, results, fields) => {
+        if (err) {
+            res.json({ status: 'error', massage: err })
+            return
+        } else
+            res.json({ status: 'ok' })
+    })
+})
+
+app.put("/result/update/:hn/:id", jsonParser, (req, res, next) => {
+    const id = req.params.id
+    const hn = req.params.hn
+    var sql = `UPDATE result SET ${hn} = ?, pa1 = ?, pa2 = ?, re_sum = ? WHERE fm_id = ${id}`
+    const up = [req.body.h, req.body.pa1, req.body.pa2, req.body.sum]
+    conn.execute(sql, up, (err, upd, fields) => {
+        if (err) {
+            res.json({ status: 'error', massage: err })
+            return
+        } else
+            res.json({ status: 'ok' })
+    })
+})
+
+
 //all
 app.get("/all", jsonParser, (req, res, next) => {
     conn.query("SELECT * FROM detail RIGHT JOIN formed ON detail.de_id = formed.de_id RIGHT JOIN users ON formed.us_id = users.us_id RIGHT JOIN form on form.fm_id = detail.fm_id ORDER BY users.us_id ASC;",
@@ -314,6 +348,8 @@ app.get("/checked/id/:fm/:de", jsonParser, (req, res, next) => {
         res.send(results)
     })
 })
+
+
 
 const Port = process.env.Port || 3000
 app.listen(Port, jsonParser, () => {

@@ -352,7 +352,7 @@ app.get("/checked/id/:fm/:de", jsonParser, (req, res, next) => {
 //re+fm
 
 app.get("/ans", jsonParser, (req, res, next) => {
-    conn.query("SELECT * FROM result RIGHT JOIN form ON result.fm_id = form.fm_id", (err, ans, fields) => {
+    conn.query("SELECT * FROM result RIGHT JOIN form ON result.fm_id = form.fm_id WHERE result.re_id IS NOT NULL;", (err, ans, fields) => {
         res.send(ans)
     })
 })

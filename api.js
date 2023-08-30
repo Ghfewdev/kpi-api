@@ -217,6 +217,13 @@ app.get("/result", jsonParser, (req, res, next) => {
     })
 })
 
+app.get("/result/:id", jsonParser, (req, res, next) => {
+    const id = req.params.id
+    conn.query("SELECT * FROM result WHERE fm_id = ?", [id], (err, resu, fields) => {
+        res.send(resu);
+    })
+})
+
 app.post("/result/add", jsonParser, (req, res, next) => {
     var Isql = "INSERT INTO result (fm_id) VALUES (?)"
     var IV = [req.body.fmid]
@@ -348,6 +355,7 @@ app.get("/checked/id/:fm/:de", jsonParser, (req, res, next) => {
         res.send(results)
     })
 })
+
 
 //re+fm
 

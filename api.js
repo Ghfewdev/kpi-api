@@ -197,9 +197,29 @@ app.get("/event", jsonParser, (req, res, next) => {
     })
 })
 
+app.get("/event/:id", jsonParser, (req, res, next) => {
+    const id = req.params.id
+    conn.query("SELECT * FROM event WHERE de_id = ?;", [id], (err, evid, fields) => {
+        res.send(evid)
+    })
+})
+
 app.post("/ev/add", jsonParser, (req, res, next) => {
     const sql = "INSERT INTO event (de_id, fms_id, ev_name, ev_res, ev_status, ev_budget, ev_buded, ev_point, ev_target, ev_result , ev_problem, ev_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     const val = [req.body.deid, req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.evimg];
+    conn.execute(sql, val, (err, ev, fields) => {
+        if (err) {
+            res.json({status: "erorr", massage: err});
+            return;
+        }else {
+            res.json({status: "ok"})
+        }
+    })
+})
+
+app.put("/ev/edit", jsonParser, (req, res, next) => {
+    const sql = "UPDATE event SET fms_id = ?, ev_name = ?, ev_res = ?, ev_status = ?, ev_budget = ?, ev_buded = ?, ev_point = ?, ev_target = ?, ev_result = ?, ev_problem = ?, ev_img = ? WHERE de_id = ?";
+    const val = [req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.evimg, req.body.deid];
     conn.execute(sql, val, (err, ev, fields) => {
         if (err) {
             res.json({status: "erorr", massage: err});
@@ -364,6 +384,20 @@ app.get("/ans", jsonParser, (req, res, next) => {
         res.send(ans)
     })
 })
+
+//ev+de
+app.get("/evde", jsonParser, (req, res, next) => {
+    conn.query("SELECT * FROM event RIGHT JOIN detail ON event.de_id = detail.de_id WHERE event.de_id IS NOT NULL ORDER BY detail.de_id ASC;", (err, even, fields) => {
+        res.send(even)
+    })
+})
+
+app.get('/evde/:id', (req, res) => {
+    const id = req.params.id
+    conn.query("SELECT * FROM event RIGHT JOIN detail ON event.de_id = detail.de_id WHERE event.de_id = ? ORDER BY detail.de_id ASC;", [id], (err, evid, fields) => {
+        res.send(evid)
+    })
+});
 
 const Port = process.env.Port || 3000
 app.listen(Port, jsonParser, () => {

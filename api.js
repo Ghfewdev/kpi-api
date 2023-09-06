@@ -260,7 +260,7 @@ app.put("/result/update/:hn/:id", jsonParser, (req, res, next) => {
     const id = req.params.id
     const hn = req.params.hn
     var sql = `UPDATE result SET ${hn} = ?, ${hn}pa = ?, ${hn}pb = ?, pa1 = ?, pa2 = ?, re_sum = ? WHERE fm_id = ${id}`
-    const up = [req.body.h,req.body.pa1, req.body.pa2, req.body.pa1, req.body.pa2, req.body.sum]
+    const up = [req.body.h,req.body.hpa1, req.body.hpa2, req.body.pa1, req.body.pa2, req.body.sum]
     conn.execute(sql, up, (err, upd, fields) => {
         if (err) {
             res.json({ status: 'error', massage: err })

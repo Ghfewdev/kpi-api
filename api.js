@@ -6,9 +6,9 @@ const jsonParser = bodyParser.json();
 const mysql = require('mysql2')
 const conn = mysql.createConnection({
     host: 'db4free.net',
-    user: 'sbpkpi01',
-    password: "b31429b6",
-    database: 'sbpkpi01'
+    user: 'sbp1kpi02',
+    password: "028803200",
+    database: 'sbpkpi02'
 })
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
@@ -259,8 +259,8 @@ app.post("/result/add", jsonParser, (req, res, next) => {
 app.put("/result/update/:hn/:id", jsonParser, (req, res, next) => {
     const id = req.params.id
     const hn = req.params.hn
-    var sql = `UPDATE result SET ${hn} = ?, pa1 = ?, pa2 = ?, re_sum = ? WHERE fm_id = ${id}`
-    const up = [req.body.h, req.body.pa1, req.body.pa2, req.body.sum]
+    var sql = `UPDATE result SET ${hn} = ?, ${hn}pa = ?, ${hn}pb = ?, pa1 = ?, pa2 = ?, re_sum = ? WHERE fm_id = ${id}`
+    const up = [req.body.h,req.body.pa1, req.body.pa2, req.body.pa1, req.body.pa2, req.body.sum]
     conn.execute(sql, up, (err, upd, fields) => {
         if (err) {
             res.json({ status: 'error', massage: err })

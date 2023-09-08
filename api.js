@@ -367,6 +367,15 @@ app.get("/checked/:de", jsonParser, (req, res, next) => {
     })
 })
 
+app.get("/checked/user/:us/:fm", jsonParser, (req, res, next) => {
+    var us = req.params.us
+    var fm = req.params.fm
+    const sql = "SELECT de_qur FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id WHERE formed.us_id = ? AND detail.fm_id =? ORDER BY formed.us_id ASC"
+    conn.query(sql, [us, fm], (req, results, fields) => {
+        res.send(results)
+    })
+})
+
 app.get("/checked/id/:fm/:de", jsonParser, (req, res, next) => {
     var fm = req.params.fm
     var de = req.params.de

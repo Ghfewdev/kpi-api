@@ -36,6 +36,24 @@ app.post('/register', jsonParser, (req, res, next) => {
 
 })
 
+app.put('/register/edit', jsonParser, (req, res, next) => {
+    bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
+        var Isql = "UPDATE users SET us_password = ?, us_name = ? WHERE us_agency = ?;"
+        var IV = [hash, req.body.name, req.body.agency]
+        conn.execute(Isql, IV, (err, results, fields) => {
+            if (err) {
+                res.json({ status: 'error', massage: err })
+                return
+            } else
+                res.json({ status: 'ok' })
+
+        })
+
+    });
+
+})
+
+
 app.post('/login', jsonParser, (req, res, next) => {
     var qsql = "SELECT * FROM users WHERE us_name = ?"
     var qy = req.body.name

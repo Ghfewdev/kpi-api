@@ -434,15 +434,16 @@ const storage = multer.diskStorage({
         return cd(null, "./public/images")
     },
     filename: function(req, file, cd) {
-        return cd(null, `${Date.now()}.${(file.originalname).split(".")[1]}`)
+        //return cd(null, `${Date.now()}.${(file.originalname).split(".")[1]}`)
+        return cd(null, `${Date.now()}_${file.originalname}`);
     }
 })
 
 const upload = multer({storage})
 
 app.post("/upload", upload.single("file"), (req, res) => {
-    console.log(req.body)
-    console.log(req.file)
+    //console.log(req.body)
+    //console.log(req.file)
 })
 
 app.get("/", (req, res) => {

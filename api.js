@@ -14,8 +14,10 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
 const secect = 'abcdefg'
+const multer = require("multer");
 
 app.use(cors());
+app.use(express.json());
 //app.use(jsonParser);
 
 // users
@@ -425,6 +427,27 @@ app.get('/evde/:id', (req, res) => {
         res.send(evid)
     })
 });
+
+//uploads
+const storage = multer.diskStorage({
+    destination: function(req, file, cd) {
+        return cd(null, "./public/images")
+    },
+    filename: function(req, file, cd) {
+        return cd(null, `${Date.now()}.${(file.originalname).split(".")[1]}`)
+    }
+})
+
+const upload = multer({storage})
+
+app.post("/upload", upload.single("file"), (req, res) => {
+    console.log(req.body)
+    console.log(req.file)
+})
+
+app.get("/", (req, res) => {
+    res.send("API")
+})
 
 const Port = process.env.Port || 3000
 app.listen(Port, jsonParser, () => {

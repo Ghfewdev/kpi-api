@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -5,10 +6,10 @@ const bodyParser = require('body-parser')
 const jsonParser = bodyParser.json();
 const mysql = require('mysql2')
 const conn = mysql.createConnection({
-    host: 'db4free.net',
-    user: 'sbp1kpi02',
-    password: "028803200",
-    database: 'sbpkpi02'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_DATABASE
 })
 const bcrypt = require('bcrypt');
 const saltRounds = 10;

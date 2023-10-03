@@ -22,7 +22,7 @@ app.use(express.json());
 //app.use(jsonParser);
 
 // users
-app.post('/register', jsonParser, (req, res, next) => {
+app.post('/useradd', jsonParser, (req, res, next) => {
     bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
         var Isql = "INSERT INTO users (us_email, us_password, us_name, us_agency, us_level) VALUES (?, ?, ?, ?, 0)"
         var IV = [req.body.email, hash, req.body.name, req.body.agency]
@@ -39,7 +39,7 @@ app.post('/register', jsonParser, (req, res, next) => {
 
 })
 
-app.put('/register/edit', jsonParser, (req, res, next) => {
+app.put('/useredit', jsonParser, (req, res, next) => {
     bcrypt.hash(req.body.password, saltRounds, (err, hash) => {
         var Isql = "UPDATE users SET us_password = ?, us_name = ? WHERE us_agency = ?;"
         var IV = [hash, req.body.name, req.body.agency]
@@ -100,8 +100,8 @@ app.get('/users/:id', (req, res) => {
 
 // form
 app.post('/form/add', jsonParser, (req, res, next) => {
-    var Isql = "INSERT INTO form (fm_id, fm_name, fm_solve,fm_method, fm_define, fm_paras, fm_numpara) VALUES (?, ?, ?, ?, ?, ?, ?)"
-    var IV = [req.body.id, req.body.name, req.body.solve, req.body.method, req.body.def, req.body.paras, req.body.numpara]
+    var Isql = "INSERT INTO form (fm_id, fm_name, fm_solve,fm_method, fm_define, fm_paras, fm_com, fm_stus, fm_numpara) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    var IV = [req.body.id, req.body.name, req.body.solve, req.body.method, req.body.def, req.body.paras, req.body.com, req.body.stas, req.body.numpara]
     conn.execute(Isql, IV, (err, results, fields) => {
         if (err) {
             res.json({ status: 'error', massage: err })
@@ -226,8 +226,9 @@ app.get("/event/:id", jsonParser, (req, res, next) => {
 })
 
 app.post("/ev/add", jsonParser, (req, res, next) => {
-    const sql = "INSERT INTO event (de_id, fms_id, ev_name, ev_res, ev_status, ev_budget, ev_buded, ev_point, ev_target, ev_result , ev_problem, ev_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    const val = [req.body.deid, req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.evimg];
+    const sql = "INSERT INTO event (de_id, fms_id, ev_name, ev_res, ev_status, ev_budget, ev_buded, ev_point, ev_target, ev_result , ev_problem, ev_str, ev_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    //const val = [req.body.deid, req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.evimg];
+    const val = [req.body.deid, req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, " "];
     conn.execute(sql, val, (err, ev, fields) => {
         if (err) {
             res.json({status: "erorr", massage: err});
@@ -239,8 +240,9 @@ app.post("/ev/add", jsonParser, (req, res, next) => {
 })
 
 app.put("/ev/edit", jsonParser, (req, res, next) => {
-    const sql = "UPDATE event SET fms_id = ?, ev_name = ?, ev_res = ?, ev_status = ?, ev_budget = ?, ev_buded = ?, ev_point = ?, ev_target = ?, ev_result = ?, ev_problem = ?, ev_img = ? WHERE de_id = ?";
-    const val = [req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.evimg, req.body.deid];
+    const sql = "UPDATE event SET fms_id = ?, ev_name = ?, ev_res = ?, ev_status = ?, ev_budget = ?, ev_buded = ?, ev_point = ?, ev_target = ?, ev_result = ?, ev_problem = ?, ev_str = ?, ev_img = ? WHERE de_id = ?";
+    //const val = [req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.evimg, req.body.deid];
+    const val = [req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, "{}", req.body.deid];
     conn.execute(sql, val, (err, ev, fields) => {
         if (err) {
             res.json({status: "erorr", massage: err});
@@ -451,7 +453,7 @@ app.get("/", (req, res) => {
     res.send("API")
 })
 
-const Port = process.env.Port || 3000
+const Port = process.env.PORT || 8080
 app.listen(Port, jsonParser, () => {
     console.log(`start server on Port ${Port}`)
 })

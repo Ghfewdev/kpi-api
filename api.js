@@ -100,8 +100,8 @@ app.get('/users/:id', (req, res) => {
 
 // form
 app.post('/form/add', jsonParser, (req, res, next) => {
-    var Isql = "INSERT INTO form (fm_id, fm_name, fm_solve,fm_method, fm_define, fm_paras, fm_com, fm_stus, fm_numpara) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    var IV = [req.body.id, req.body.name, req.body.solve, req.body.method, req.body.def, req.body.paras, req.body.com, req.body.stas, req.body.numpara]
+    var Isql = "INSERT INTO form (fm_id, fm_name, fm_solve, fm_method, fm_define, fm_paras, fm_com, fm_numpara) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+    var IV = [req.body.id, req.body.name, req.body.solve, req.body.method, req.body.def, req.body.paras, req.body.com, req.body.numpara]
     conn.execute(Isql, IV, (err, results, fields) => {
         if (err) {
             res.json({ status: 'error', massage: err })
@@ -378,6 +378,14 @@ app.get('/report/api', (req, res) => {
 app.get("/checked", jsonParser, (req, res, next) => {
     const sql = "SELECT formed.us_id, detail.fm_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id"
     conn.query(sql, (req, results, fields) => {
+        res.send(results)
+    })
+})
+
+app.get("/checked/:qu", jsonParser, (req, res, next) => {
+    var qu = req.params.qu
+    const sql = "SELECT formed.us_id, detail.fm_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id WHERE detail.de_qur = ?"
+    conn.query(sql, [qu], (req, results, fields) => {
         res.send(results)
     })
 })

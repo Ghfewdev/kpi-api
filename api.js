@@ -494,6 +494,7 @@ app.get("/files", (req, res) => {
     });
 })
 
+//Home
 app.get("/", (req, res) => {
     res.send("API")
 })

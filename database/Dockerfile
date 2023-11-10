@@ -1,0 +1,11 @@
+FROM mysql:8.0.32
+
+WORKDIR /app
+
+MAINTAINER uple@gmail.com
+ENV MYSQL_ROOT_PASSWORD 4321
+ENV MYSQL_USER uple
+ENV MYSQL_PASSWORD 4321
+ADD db.sql /docker-entrypoint-initdb.d
+
+EXPOSE 3306

@@ -107,8 +107,8 @@ app.get('/users/:id', (req, res) => {
 
 // form
 app.post('/form/add', jsonParser, (req, res, next) => {
-    var Isql = "INSERT INTO form (fm_id, fm_name, fm_solve, fm_method, fm_define, fm_paras, fm_com, fm_con, fm_numpara) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    var IV = [req.body.id, req.body.name, req.body.solve, req.body.method, req.body.def, req.body.paras, req.body.com, req.body.con, req.body.numpara]
+    var Isql = "INSERT INTO form (fm_id, fm_name, fm_solve, fm_method, fm_define, fm_paras, fm_com, fm_con, fm_numpara, fm_res) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    var IV = [req.body.id, req.body.name, req.body.solve, req.body.method, req.body.def, req.body.paras, req.body.com, req.body.con, req.body.numpara, req.body.res]
     conn.execute(Isql, IV, (err, results, fields) => {
         if (err) {
             res.json({ status: 'error', massage: err })
@@ -123,6 +123,13 @@ app.post('/form/add', jsonParser, (req, res, next) => {
 app.get("/form", jsonParser, (req, res, next) => {
     conn.query("SELECT * FROM form", (err, form, fields) => {
         res.send(form);
+    })
+})
+
+app.get("/form/res/:id", jsonParser, (req, res, next) => {
+    const id = req.params.id
+    conn.query(`SELECT fm_id FROM form WHERE fm_res LIKE '%${id}%';`, (err, resp, fields) => {
+        res.send(resp);
     })
 })
 
@@ -201,10 +208,26 @@ app.post('/formed/fill', jsonParser, (req, res, next) => {
     })
 })
 
+app.put("/formed/update", jsonParser, (req, res, next) => {
+    const date = `${new Date().getUTCFullYear()}-${new Date().getUTCMonth() + 1}-${new Date().getUTCDate()}`
+    const time = `${new Date().getUTCHours() + 7}:${new Date().getUTCMinutes()}:${new Date().getUTCSeconds()}`
+    var Usql = "UPDATE formed SET fd_update = ?, us_id = ?, fd_time = ? WHERE de_id = ?"
+    var vl = [date, req.body.user, time, req.body.detail]
+    conn.execute(Usql, vl, (err, results, fields) => {
+        if (err) {
+            res.json({ status: 'error', massage: err })
+            return
+        } else
+            res.json({ status: 'ok', v: time, d: date })
+    })
+})
+
 app.get("/formed", jsonParser, (req, res, next) => {
     conn.query("SELECT * FROM formed", (err, formed, fields) => {
         formed = formed.map(d => {
             d.fd_date = d.fd_date.toISOString().split('T')[0];
+            if (d.fd_update != null)
+            d.fd_update = d.fd_update.toISOString().split('T')[0];
             return d;
         })
         res.send(formed)
@@ -321,6 +344,8 @@ app.get("/all", jsonParser, (req, res, next) => {
             all = all.map(d => {
                 if (d.fd_date != null)
                     d.fd_date = d.fd_date.toISOString().split('T')[0];
+                if (d.fd_update != null)
+                    d.fd_update = d.fd_update.toISOString().split('T')[0];
                 return d;
             })
             res.send(all);
@@ -334,6 +359,8 @@ app.get("/all/:id", jsonParser, (req, res, next) => {
             all = all.map(d => {
                 if (d.fd_date != null)
                     d.fd_date = d.fd_date.toISOString().split('T')[0];
+                if (d.fd_update != null)
+                    d.fd_update = d.fd_update.toISOString().split('T')[0];
                 return d;
             })
             res.send(all);
@@ -348,6 +375,8 @@ app.get("/all/hp/:user/:id", jsonParser, (req, res, next) => {
             all = all.map(d => {
                 if (d.fd_date != null)
                     d.fd_date = d.fd_date.toISOString().split('T')[0];
+                if (d.fd_update != null)
+                    d.fd_update = d.fd_update.toISOString().split('T')[0];
                 return d;
             })
             res.send(all);
@@ -404,13 +433,13 @@ app.get("/checked", jsonParser, (req, res, next) => {
 
 app.get("/checked/:qu", jsonParser, (req, res, next) => {
     var qu = req.params.qu
-    const sql = "SELECT formed.us_id, detail.fm_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id WHERE detail.de_qur = ?"
+    const sql = "SELECT formed.us_id, detail.fm_id, form.fm_res, detail.de_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id RIGHT JOIN form ON detail.fm_id = form.fm_id WHERE detail.de_qur = ? ORDER BY us_id, fm_id"
     conn.query(sql, [qu], (req, results, fields) => {
         res.send(results)
     })
 })
 
-app.get("/checked/:de", jsonParser, (req, res, next) => {
+app.get("/checked/detail/:de", jsonParser, (req, res, next) => {
     var de = req.params.de
     const sql = "SELECT * FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id WHERE detail.de_qur = ? ORDER BY formed.us_id ASC"
     conn.query(sql, [de], (req, results, fields) => {

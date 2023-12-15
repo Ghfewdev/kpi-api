@@ -121,21 +121,25 @@ app.post('/form/add', jsonParser, (req, res, next) => {
 })
 
 app.get("/form", jsonParser, (req, res, next) => {
-    conn.query("SELECT * FROM form", (err, form, fields) => {
+    conn.query("SELECT * FROM form ORDER BY ABS(fm_id) ASC", (err, form, fields) => {
         res.send(form);
     })
 })
 
+app.get("/form/undefined", jsonParser, (req, res, next) => {
+    
+})
+
 app.get("/form/res/:id", jsonParser, (req, res, next) => {
     const id = req.params.id
-    conn.query(`SELECT fm_id FROM form WHERE fm_res LIKE '%${id}%';`, (err, resp, fields) => {
+    conn.query(`SELECT fm_id FROM form WHERE fm_res LIKE '%${id}%' ORDER BY ABS(fm_id);`, (err, resp, fields) => {
         res.send(resp);
     })
 })
 
 app.get("/form/:id", jsonParser, (req, res, next) => {
     const id = req.params.id
-    conn.query("SELECT * FROM form WHERE fm_id = ?", [id], (err, form, fields) => {
+    conn.query(`SELECT * FROM form WHERE fm_id = ${id}`, (err, form, fields) => {
         res.send(form);
     })
 })
@@ -469,7 +473,7 @@ app.get("/checked/id/:fm/:de", jsonParser, (req, res, next) => {
 //re+fm
 
 app.get("/ans", jsonParser, (req, res, next) => {
-    conn.query("SELECT * FROM result RIGHT JOIN form ON result.fm_id = form.fm_id WHERE result.re_id IS NOT NULL ORDER BY result.fm_id ASC;", (err, ans, fields) => {
+    conn.query("SELECT * FROM result RIGHT JOIN form ON result.fm_id = form.fm_id WHERE result.re_id IS NOT NULL ORDER BY ABS(result.fm_id) ASC;", (err, ans, fields) => {
         res.send(ans)
     })
 })

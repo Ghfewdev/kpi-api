@@ -492,6 +492,14 @@ app.get('/evde/:id', (req, res) => {
     })
 });
 
+app.get('/evde/:form/:id', (req, res) => {
+    const id = req.params.id
+    const form = req.params.form
+    conn.query("SELECT * FROM event RIGHT JOIN detail ON event.de_id = detail.de_id RIGHT JOIN formed ON formed.de_id = detail.de_id WHERE detail.fm_id = ? AND formed.us_id = ? ORDER BY detail.de_qur DESC;", [form, id], (err, evifd, fields) => {
+        res.send(evifd)
+    })
+});
+
 //uploads
 
 

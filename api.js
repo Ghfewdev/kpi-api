@@ -158,7 +158,7 @@ app.put("/update/form", jsonParser, (req, res, next) => {
 
 //detail
 app.post('/form/fill', jsonParser, (req, res, next) => {
-    var Isql = "INSERT INTO detail (fm_id, de_qur, de_paras, de_ans, de_result) VALUES (?, ?, ?, ?, ?)"
+    var Isql = "INSERT INTO detail ( fm_id, de_qur, de_paras, de_ans, de_result ) VALUES (?, ?, ?, ?, ?)"
     var IV = [req.body.formid, req.body.qur, req.body.paras, req.body.ans, req.body.result]
     conn.execute(Isql, IV, (err, results, fields) => {
         if (err) {
@@ -166,9 +166,7 @@ app.post('/form/fill', jsonParser, (req, res, next) => {
             return
         } else
             res.json({ status: 'ok' })
-
     })
-
 })
 
 app.get("/detail", jsonParser, (req, res, next) => {

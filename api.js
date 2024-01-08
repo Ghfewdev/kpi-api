@@ -156,6 +156,18 @@ app.put("/update/form", jsonParser, (req, res, next) => {
     })
 })
 
+app.put("/update/form/res", jsonParser, (req, res, next) => {
+    var sql = "UPDATE form SET fm_res = ? WHERE fm_id = ?"
+    const up = [req.body.res, req.body.id]
+    conn.execute(sql, up, (err, upd, fields) => {
+        if (err) {
+            res.json({ status: 'error', massage: err })
+            return
+        } else
+            res.json({ status: 'ok' })
+    })
+})
+
 //detail
 app.post('/form/fill', jsonParser, (req, res, next) => {
     var Isql = "INSERT INTO detail ( fm_id, de_qur, de_paras, de_ans, de_result ) VALUES (?, ?, ?, ?, ?)"

@@ -207,6 +207,54 @@ app.put("/update/detail", jsonParser, (req, res, next) => {
     })
 })
 
+//eved
+app.post('/eved/fill', jsonParser, (req, res, next) => {
+    const date = `${new Date().getUTCFullYear()}-${new Date().getUTCMonth() + 1}-${new Date().getUTCDate()}`
+    const time = `${new Date().getUTCHours() + 7}:${new Date().getUTCMinutes()}:${new Date().getUTCSeconds()}`
+    var Isql = "INSERT INTO eved (ev_id, us_id, ed_date, ed_time, ed_update) VALUES (?, ?, ?, ?, ?)"
+    var IV = [req.body.event, req.body.user, date, time, date]
+    conn.execute(Isql, IV, (err, results, fields) => {
+        if (err) {
+            res.json({ status: 'error', massage: err })
+            return
+        } else
+            res.json({ status: 'ok' })
+    })
+})
+
+app.put("/eved/update", jsonParser, (req, res, next) => {
+    const date = `${new Date().getUTCFullYear()}-${new Date().getUTCMonth() + 1}-${new Date().getUTCDate()}`
+    const time = `${new Date().getUTCHours() + 7}:${new Date().getUTCMinutes()}:${new Date().getUTCSeconds()}`
+    var Usql = "UPDATE eved SET ed_update = ?, us_id = ?, ed_time = ? WHERE ev_id = ?"
+    var vl = [date, req.body.user, time, req.body.event]
+    conn.execute(Usql, vl, (err, results, fields) => {
+        if (err) {
+            res.json({ status: 'error', massage: err })
+            return
+        } else
+            res.json({ status: 'ok', v: time, d: date })
+    })
+})
+
+app.get("/eved", jsonParser, (req, res, next) => {
+    conn.query("SELECT * FROM eved", (err, formed, fields) => {
+        formed = formed.map(d => {
+            d.ed_date = d.ed_date.toISOString().split('T')[0];
+            if (d.ed_update != null)
+            d.ed_update = d.ed_update.toISOString().split('T')[0];
+            return d;
+        })
+        res.send(formed)
+    })
+})
+
+app.get("/eved/:id", jsonParser, (req, res, next) => {
+    const id = req.params.id
+    conn.query("SELECT * FROM eved WHERE ev_id = ?", [id], (err, formed, fields) => {
+        res.send(formed)
+    })
+})
+
 //formed
 app.post('/formed/fill', jsonParser, (req, res, next) => {
     const date = `${new Date().getUTCFullYear()}-${new Date().getUTCMonth() + 1}-${new Date().getUTCDate()}`
@@ -264,15 +312,22 @@ app.get("/event", jsonParser, (req, res, next) => {
 
 app.get("/event/:id", jsonParser, (req, res, next) => {
     const id = req.params.id
-    conn.query("SELECT * FROM event WHERE de_id = ?;", [id], (err, evid, fields) => {
+    conn.query("SELECT * FROM event WHERE ev_id = ?;", [id], (err, evid, fields) => {
+        res.send(evid)
+    })
+})
+
+app.get("/event/fm/:id", jsonParser, (req, res, next) => {
+    const id = req.params.id
+    conn.query("SELECT * FROM event WHERE fm_id = ?;", [id], (err, evid, fields) => {
         res.send(evid)
     })
 })
 
 app.post("/ev/add", jsonParser, (req, res, next) => {
-    const sql = "INSERT INTO event (de_id, fms_id, ev_name, ev_res, ev_status, ev_budget, ev_buded, ev_point, ev_target, ev_result , ev_problem, ev_str, ev_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const sql = "INSERT INTO event (fm_id, ev_qur, fms_id, ev_name, ev_res, ev_status, ev_budget, ev_buded, ev_point, ev_target, ev_result , ev_problem, ev_str, ev_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     //const val = [req.body.deid, req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, "{}"];
-    const val = [req.body.deid, req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, req.body.evimg];
+    const val = [req.body.fmid, req.body.qur, req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, req.body.evimg];
     conn.execute(sql, val, (err, ev, fields) => {
         if (err) {
             res.json({status: "erorr", massage: err});
@@ -284,9 +339,9 @@ app.post("/ev/add", jsonParser, (req, res, next) => {
 })
 
 app.put("/ev/edit", jsonParser, (req, res, next) => {
-    const sql = "UPDATE event SET fms_id = ?, ev_name = ?, ev_res = ?, ev_status = ?, ev_budget = ?, ev_buded = ?, ev_point = ?, ev_target = ?, ev_result = ?, ev_problem = ?, ev_str = ?, ev_img = ? WHERE de_id = ?";
+    const sql = "UPDATE event SET fms_id = ?, ev_qur = ?, ev_name = ?, ev_res = ?, ev_status = ?, ev_budget = ?, ev_buded = ?, ev_point = ?, ev_target = ?, ev_result = ?, ev_problem = ?, ev_str = ?, ev_img = ? WHERE fm_id = ?";
     //const val = [req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, "{}", req.body.deid];
-    const val = [req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, req.body.evimg, req.body.deid];
+    const val = [req.body.fmsid, req.body.qur, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, req.body.evimg, req.body.fmid];
     conn.execute(sql, val, (err, ev, fields) => {
         if (err) {
             res.json({status: "erorr", massage: err});
@@ -453,6 +508,16 @@ app.get("/checked/:qu", jsonParser, (req, res, next) => {
     })
 })
 
+app.get("/checked/:qu/:us", jsonParser, (req, res, next) => {
+    var qu = req.params.qu
+    var us = req.params.us
+    const sql = "SELECT formed.us_id, detail.fm_id, form.fm_res, detail.de_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id RIGHT JOIN form ON detail.fm_id = form.fm_id WHERE detail.de_qur = ? AND formed.us_id = ? ORDER BY us_id, fm_id"
+    conn.query(sql, [qu, us], (req, results, fields) => {
+        res.send(results)
+    })
+})
+
+
 app.get("/checked/detail/:de", jsonParser, (req, res, next) => {
     var de = req.params.de
     const sql = "SELECT * FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id WHERE detail.de_qur = ? ORDER BY formed.us_id ASC"
@@ -479,6 +544,13 @@ app.get("/checked/id/:fm/:de", jsonParser, (req, res, next) => {
     })
 })
 
+app.get("/checked/s/:qu/c", jsonParser, (req, res, next) => {
+    var qu = req.params.qu
+    const sql = "SELECT detail.fm_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id RIGHT JOIN form ON detail.fm_id = form.fm_id WHERE detail.de_qur = ? GROUP BY fm_id ORDER BY fm_id"
+    conn.query(sql, [qu], (req, results, fields) => {
+        res.send(results)
+    })
+})
 
 //re+fm
 
@@ -490,14 +562,21 @@ app.get("/ans", jsonParser, (req, res, next) => {
 
 //ev+de
 app.get("/evde", jsonParser, (req, res, next) => {
-    conn.query("SELECT * FROM event RIGHT JOIN detail ON event.de_id = detail.de_id WHERE event.de_id IS NOT NULL ORDER BY detail.de_id ASC;", (err, even, fields) => {
+    conn.query("SELECT * FROM event RIGHT JOIN eved ON event.ev_id = eved.ev_id WHERE event.ev_id IS NOT NULL ORDER BY eved.ev_id ASC;", (err, even, fields) => {
         res.send(even)
     })
 })
 
 app.get('/evde/:id', (req, res) => {
     const id = req.params.id
-    conn.query("SELECT * FROM event RIGHT JOIN detail ON event.de_id = detail.de_id WHERE event.de_id = ? ORDER BY detail.de_id ASC;", [id], (err, evid, fields) => {
+    conn.query("SELECT * FROM event RIGHT JOIN eved ON event.ev_id = eved.ev_id WHERE event.ev_id = ? ORDER BY eved.ed_id ASC;", [id], (err, evid, fields) => {
+        res.send(evid)
+    })
+});
+
+app.get('/evde/user/:us', (req, res) => {
+    const us = req.params.us
+    conn.query("SELECT * FROM event RIGHT JOIN eved ON event.ev_id = eved.ev_id WHERE eved.us_id = ? ORDER BY eved.ed_id ASC;", [us], (err, evid, fields) => {
         res.send(evid)
     })
 });
@@ -505,8 +584,15 @@ app.get('/evde/:id', (req, res) => {
 app.get('/evde/:form/:id', (req, res) => {
     const id = req.params.id
     const form = req.params.form
-    conn.query("SELECT * FROM event RIGHT JOIN detail ON event.de_id = detail.de_id RIGHT JOIN formed ON formed.de_id = detail.de_id WHERE detail.fm_id = ? AND formed.us_id = ? ORDER BY detail.de_qur DESC;", [form, id], (err, evifd, fields) => {
+    conn.query("SELECT * FROM event RIGHT JOIN eved ON event.ev_id = eved.ev_id WHERE event.fm_id = ? AND eved.us_id = ? ORDER BY event.ev_qur DESC;", [form, id], (err, evifd, fields) => {
         res.send(evifd)
+    })
+});
+
+app.get('/evde/f/:id/a', (req, res) => {
+    const id = req.params.id
+    conn.query("SELECT * FROM event RIGHT JOIN eved ON event.ev_id = eved.ev_id WHERE event.fm_id = ? ORDER BY eved.ed_id ASC;", [id], (err, evid, fields) => {
+        res.send(evid)
     })
 });
 

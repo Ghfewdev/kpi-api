@@ -353,8 +353,8 @@ app.put("/ev/edit", jsonParser, (req, res, next) => {
 })
 
 app.put("/ev/edit/img", jsonParser, (req, res, next) => {
-    const sql = "UPDATE event SET ev_img = ? WHERE de_id = ?";
-    const val = [req.body.evimg, req.body.deid];
+    const sql = "UPDATE event SET ev_img = ? WHERE ev_id = ?";
+    const val = [req.body.evimg, req.body.evid];
     conn.execute(sql, val, (err, ev, fields) => {
         if (err) {
             res.json({status: "erorr", massage: err});

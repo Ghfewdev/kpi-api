@@ -339,9 +339,9 @@ app.post("/ev/add", jsonParser, (req, res, next) => {
 })
 
 app.put("/ev/edit", jsonParser, (req, res, next) => {
-    const sql = "UPDATE event SET fms_id = ?, ev_qur = ?, ev_name = ?, ev_res = ?, ev_status = ?, ev_budget = ?, ev_buded = ?, ev_point = ?, ev_target = ?, ev_result = ?, ev_problem = ?, ev_str = ?, ev_img = ? WHERE fm_id = ?";
+    const sql = "UPDATE event SET fms_id = ?, ev_qur = ?, ev_name = ?, ev_res = ?, ev_status = ?, ev_budget = ?, ev_buded = ?, ev_point = ?, ev_target = ?, ev_result = ?, ev_problem = ?, ev_str = ?, ev_img = ? WHERE ev_id = ?";
     //const val = [req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, "{}", req.body.deid];
-    const val = [req.body.fmsid, req.body.qur, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, req.body.evimg, req.body.fmid];
+    const val = [req.body.fmsid, req.body.qur, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, req.body.evimg, req.body.evid];
     conn.execute(sql, val, (err, ev, fields) => {
         if (err) {
             res.json({status: "erorr", massage: err});
@@ -511,7 +511,7 @@ app.get("/checked/:qu", jsonParser, (req, res, next) => {
 app.get("/checked/:qu/:us", jsonParser, (req, res, next) => {
     var qu = req.params.qu
     var us = req.params.us
-    const sql = "SELECT formed.us_id, detail.fm_id, form.fm_res, detail.de_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id RIGHT JOIN form ON detail.fm_id = form.fm_id WHERE detail.de_qur = ? AND formed.us_id = ? ORDER BY us_id, fm_id"
+    const sql = "SELECT formed.us_id, detail.fm_id, form.fm_res, detail.de_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id RIGHT JOIN form ON detail.fm_id = form.fm_id WHERE detail.de_qur = ? AND formed.us_id = ? ORDER BY ABS(form.fm_id) ASC;"
     conn.query(sql, [qu, us], (req, results, fields) => {
         res.send(results)
     })
@@ -546,7 +546,7 @@ app.get("/checked/id/:fm/:de", jsonParser, (req, res, next) => {
 
 app.get("/checked/s/:qu/c", jsonParser, (req, res, next) => {
     var qu = req.params.qu
-    const sql = "SELECT detail.fm_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id RIGHT JOIN form ON detail.fm_id = form.fm_id WHERE detail.de_qur = ? GROUP BY fm_id ORDER BY fm_id"
+    const sql = "SELECT detail.fm_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id RIGHT JOIN form ON detail.fm_id = form.fm_id WHERE detail.de_qur = ? GROUP BY fm_id ORDER BY ABS(form.fm_id)"
     conn.query(sql, [qu], (req, results, fields) => {
         res.send(results)
     })

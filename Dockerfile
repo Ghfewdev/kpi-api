@@ -1,10 +1,9 @@
-FROM node:16-alpine
-
+FROM node:21-bullseye-slim
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci
+RUN npm ci --only=production
 
 COPY . .
 

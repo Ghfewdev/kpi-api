@@ -2,12 +2,14 @@ services:
   db:
     build: .
     restart: always
+    volumes:
+      - ./data/db:/var/lib/mysql
     ports:
       - "3306:3306"
     networks:
       - app-network
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin
     restart: always
     environment:
       PMA_HOST: db

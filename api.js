@@ -72,7 +72,7 @@ app.post('/login', jsonParser, (req, res, next) => {
         if (users.length === 0) { res.json({ status: 'error', massage: 'no user not found' }); return }
         bcrypt.compare(req.body.password, users[0].us_password, (err, islogin) => {
             if (islogin) {
-                var token = jwt.sign({ name: users[0].us_name }, secect, { expiresIn: '1h' })+ "$" + users[0].us_level;
+                var token = jwt.sign({ name: users[0].us_name }, secect, { expiresIn: '1h' }) + "$" + users[0].us_level;
                 res.json({ status: 'ok', massage: 'login success', token, name: users[0].us_name, id: users[0].us_id, agency: users[0].us_agency });
             } else {
                 res.json({ status: 'erorr', massage: 'login failed' })
@@ -127,7 +127,7 @@ app.get("/form", jsonParser, (req, res, next) => {
 })
 
 app.get("/form/undefined", jsonParser, (req, res, next) => {
-    
+
 })
 
 app.get("/form/res/:id", jsonParser, (req, res, next) => {
@@ -207,6 +207,40 @@ app.put("/update/detail", jsonParser, (req, res, next) => {
     })
 })
 
+app.post("/detail/delete/:id/:hn/:fd", jsonParser, (req, res, next) => {
+    var id = req.params.id;
+    const fd = req.params.fd
+    const hn = req.params.hn
+    var sql = `UPDATE result SET ${hn} = ?, ${hn}pa = ?, ${hn}pb = ?, pa1 = ?, pa2 = ?, re_log = ?, re_sum = ? WHERE fm_id = ${fd}`
+    const up = [req.body.h, req.body.hpa1, req.body.hpa2, req.body.pa1, req.body.pa2, req.body.log, req.body.sum]
+
+    conn.execute(sql, up, (err, upd, fields) => {
+        if (err) {
+            res.json({ status: 'error', massage: err })
+            return
+        } else {
+            conn.execute("DELETE FROM formed WHERE de_id = ?", [id], (err, del, filelds) => {
+                if (err) {
+                    res.json({ status: 'error', massage: err })
+                    return
+                } else {
+                    conn.execute("DELETE FROM detail WHERE de_id = ?", [id], (err, del, filelds) => {
+                        if (err) {
+                            res.json({ status: 'error', massage: err })
+                            return
+                        } else {
+                            res.json({ status: 'ok' })
+                        }
+                    })
+                }
+            })
+        }
+
+    })
+
+    
+})
+
 //eved
 app.post('/eved/fill', jsonParser, (req, res, next) => {
     const date = `${new Date().getUTCFullYear()}-${new Date().getUTCMonth() + 1}-${new Date().getUTCDate()}`
@@ -241,7 +275,7 @@ app.get("/eved", jsonParser, (req, res, next) => {
         formed = formed.map(d => {
             d.ed_date = d.ed_date.toISOString().split('T')[0];
             if (d.ed_update != null)
-            d.ed_update = d.ed_update.toISOString().split('T')[0];
+                d.ed_update = d.ed_update.toISOString().split('T')[0];
             return d;
         })
         res.send(formed)
@@ -289,7 +323,7 @@ app.get("/formed", jsonParser, (req, res, next) => {
         formed = formed.map(d => {
             d.fd_date = d.fd_date.toISOString().split('T')[0];
             if (d.fd_update != null)
-            d.fd_update = d.fd_update.toISOString().split('T')[0];
+                d.fd_update = d.fd_update.toISOString().split('T')[0];
             return d;
         })
         res.send(formed)
@@ -330,10 +364,10 @@ app.post("/ev/add", jsonParser, (req, res, next) => {
     const val = [req.body.fmid, req.body.qur, req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, req.body.evimg];
     conn.execute(sql, val, (err, ev, fields) => {
         if (err) {
-            res.json({status: "erorr", massage: err});
+            res.json({ status: "erorr", massage: err });
             return;
-        }else {
-            res.json({status: "ok"})
+        } else {
+            res.json({ status: "ok" })
         }
     })
 })
@@ -344,10 +378,10 @@ app.put("/ev/edit", jsonParser, (req, res, next) => {
     const val = [req.body.fmsid, req.body.qur, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, req.body.evimg, req.body.evid];
     conn.execute(sql, val, (err, ev, fields) => {
         if (err) {
-            res.json({status: "erorr", massage: err});
+            res.json({ status: "erorr", massage: err });
             return;
-        }else {
-            res.json({status: "ok"})
+        } else {
+            res.json({ status: "ok" })
         }
     })
 })
@@ -357,10 +391,29 @@ app.put("/ev/edit/img", jsonParser, (req, res, next) => {
     const val = [req.body.evimg, req.body.evid];
     conn.execute(sql, val, (err, ev, fields) => {
         if (err) {
-            res.json({status: "erorr", massage: err});
+            res.json({ status: "erorr", massage: err });
             return;
-        }else {
-            res.json({status: "ok"})
+        } else {
+            res.json({ status: "ok" })
+        }
+    })
+})
+
+app.delete("/event/delete/:id", jsonParser, (req, res, next) => {
+    var id = req.params.id;
+    conn.execute("DELETE FROM eved WHERE ev_id = ?", [id], (err, del, filelds) => {
+        if (err) {
+            res.json({ status: 'error', massage: err })
+            return
+        } else {
+            conn.execute("DELETE FROM event WHERE ev_id = ?", [id], (err, del, filelds) => {
+                if (err) {
+                    res.json({ status: 'error', massage: err })
+                    return
+                } else {
+                    res.json({ status: 'ok' })
+                }
+            })
         }
     })
 })
@@ -479,7 +532,7 @@ app.get('/report/api', (req, res) => {
     sql += " LIMIT ?, ? ";
     params.push(start_idx);
     params.push(per_page);
-    
+
     console.log(sql, params);
     conn.execute(sql, params, (err, tables, fields) => {
         tables = tables.map(d => {
@@ -591,7 +644,7 @@ app.get('/evde/:form/:id', (req, res) => {
 
 app.get('/evde/f/:id/a', (req, res) => {
     const id = req.params.id
-    conn.query("SELECT * FROM event RIGHT JOIN eved ON event.ev_id = eved.ev_id WHERE event.fm_id = ? ORDER BY eved.ed_id ASC;", [id], (err, evid, fields) => {
+    conn.query("SELECT * FROM event RIGHT JOIN eved ON event.ev_id = eved.ev_id WHERE event.fm_id = ? ORDER BY eved.us_id ASC;", [id], (err, evid, fields) => {
         res.send(evid)
     })
 });
@@ -600,15 +653,15 @@ app.get('/evde/f/:id/a', (req, res) => {
 
 
 const storage = multer.diskStorage({
-    destination: function(req, file, cd) {
+    destination: function (req, file, cd) {
         return cd(null, "./images")
     },
-    filename: function(req, file, cd) {
+    filename: function (req, file, cd) {
         return cd(null, `${new Date().getMilliseconds()}_${(file.originalname).split(".")[0]}.${(file.originalname).split(".")[1]}`)
     }
 })
 
-const upload = multer({storage})
+const upload = multer({ storage })
 
 app.post("/upload", upload.single("file"), (req, res) => {
     res.json({ filename: req.file.filename })
@@ -638,15 +691,15 @@ app.get("/", (req, res) => {
 
 //remove file
 app.post("/rm/image/:name", jsonParser, (req, res, next) => {
-const name = req.params.name
-const path = "./images/"+name
-fs.unlink(path, (err) => {
-    res.json({ status: "OK" })
-    if (err) {
-      console.error(err)
-      return
-    }
-  })
+    const name = req.params.name
+    const path = "./images/" + name
+    fs.unlink(path, (err) => {
+        res.json({ status: "OK" })
+        if (err) {
+            console.error(err)
+            return
+        }
+    })
 })
 
 const Port = process.env.PORT || 5000

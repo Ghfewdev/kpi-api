@@ -26,6 +26,7 @@ app.use(express.json());
 
 app.use(express.static("public"));
 app.use("/images", express.static("images"))
+app.use("/pdfs", express.static("pdfs"))
 
 
 // users
@@ -359,9 +360,9 @@ app.get("/event/fm/:id", jsonParser, (req, res, next) => {
 })
 
 app.post("/ev/add", jsonParser, (req, res, next) => {
-    const sql = "INSERT INTO event (fm_id, ev_qur, fms_id, ev_name, ev_res, ev_status, ev_budget, ev_buded, ev_point, ev_target, ev_result , ev_problem, ev_str, ev_img) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    const sql = "INSERT INTO event (fm_id, ev_qur, fms_id, ev_name, ev_res, ev_status, ev_budget, ev_buded, ev_point, ev_target, ev_result , ev_problem, ev_str, ev_img, files) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     //const val = [req.body.deid, req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, "{}"];
-    const val = [req.body.fmid, req.body.qur, req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, req.body.evimg];
+    const val = [req.body.fmid, req.body.qur, req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, req.body.evimg, req.body.pdf];
     conn.execute(sql, val, (err, ev, fields) => {
         if (err) {
             res.json({ status: "erorr", massage: err });
@@ -373,9 +374,9 @@ app.post("/ev/add", jsonParser, (req, res, next) => {
 })
 
 app.put("/ev/edit", jsonParser, (req, res, next) => {
-    const sql = "UPDATE event SET fms_id = ?, ev_qur = ?, ev_name = ?, ev_res = ?, ev_status = ?, ev_budget = ?, ev_buded = ?, ev_point = ?, ev_target = ?, ev_result = ?, ev_problem = ?, ev_str = ?, ev_img = ? WHERE ev_id = ?";
+    const sql = "UPDATE event SET fms_id = ?, ev_qur = ?, ev_name = ?, ev_res = ?, ev_status = ?, ev_budget = ?, ev_buded = ?, ev_point = ?, ev_target = ?, ev_result = ?, ev_problem = ?, ev_str = ? WHERE ev_id = ?";
     //const val = [req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, "{}", req.body.deid];
-    const val = [req.body.fmsid, req.body.qur, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, req.body.evimg, req.body.evid];
+    const val = [req.body.fmsid, req.body.qur, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, req.body.evid];
     conn.execute(sql, val, (err, ev, fields) => {
         if (err) {
             res.json({ status: "erorr", massage: err });
@@ -389,6 +390,19 @@ app.put("/ev/edit", jsonParser, (req, res, next) => {
 app.put("/ev/edit/img", jsonParser, (req, res, next) => {
     const sql = "UPDATE event SET ev_img = ? WHERE ev_id = ?";
     const val = [req.body.evimg, req.body.evid];
+    conn.execute(sql, val, (err, ev, fields) => {
+        if (err) {
+            res.json({ status: "erorr", massage: err });
+            return;
+        } else {
+            res.json({ status: "ok" })
+        }
+    })
+})
+
+app.put("/ev/edit/pdf", jsonParser, (req, res, next) => {
+    const sql = "UPDATE event SET files = ? WHERE ev_id = ?";
+    const val = [req.body.evpdf, req.body.evid];
     conn.execute(sql, val, (err, ev, fields) => {
         if (err) {
             res.json({ status: "erorr", massage: err });
@@ -693,6 +707,59 @@ app.get("/", (req, res) => {
 app.post("/rm/image/:name", jsonParser, (req, res, next) => {
     const name = req.params.name
     const path = "./images/" + name
+    fs.unlink(path, (err) => {
+        res.json({ status: "OK" })
+        if (err) {
+            console.error(err)
+            return
+        }
+    })
+})
+
+//uploads2
+
+
+const storage2 = multer.diskStorage({
+    destination: function (req, file, cd) {
+        return cd(null, "./pdfs")
+    },
+    filename: function (req, file, cd) {
+        return cd(null, `${new Date().getMilliseconds()}_${(file.originalname).split(".")[0]}.${(file.originalname).split(".")[1]}`)
+    }
+})
+
+const upload2 = multer({ storage: storage2 })
+
+app.post("/upload2", upload2.single("file"), (req, res) => {
+    res.json({ filename: req.file.filename })
+})
+
+//overviweimg2
+app.get("/files2", (req, res) => {
+
+    var files = [];
+
+    var walker = walk.walk('./pdfs', { followLinks: false });
+
+    walker.on('file', function (root, stat, next) {
+        files.push(stat.name);
+        next();
+    });
+
+    walker.on('end', function () {
+        res.send(files);
+    });
+})
+
+//Home
+app.get("/pdfs/null", (req, res) => {
+    res.send("ไม่มีไฟล์แนบ")
+})
+
+//remove file2
+app.post("/rm/pdf/:name", jsonParser, (req, res, next) => {
+    const name = req.params.name
+    const path = "./pdfs/" + name
     fs.unlink(path, (err) => {
         res.json({ status: "OK" })
         if (err) {

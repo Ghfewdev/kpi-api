@@ -658,7 +658,7 @@ app.get('/evde/:form/:id', (req, res) => {
 
 app.get('/evde/f/:id/a', (req, res) => {
     const id = req.params.id
-    conn.query("SELECT * FROM event RIGHT JOIN eved ON event.ev_id = eved.ev_id WHERE event.fm_id = ? ORDER BY eved.us_id ASC;", [id], (err, evid, fields) => {
+    conn.query("SELECT * FROM event RIGHT JOIN eved ON event.ev_id = eved.ev_id WHERE event.fm_id = ? ORDER BY eved.us_id ASC, ABS(event.ev_id);", [id], (err, evid, fields) => {
         res.send(evid)
     })
 });

@@ -239,7 +239,7 @@ app.post("/detail/delete/:id/:hn/:fd", jsonParser, (req, res, next) => {
 
     })
 
-    
+
 })
 
 //eved
@@ -651,14 +651,23 @@ app.get('/evde/user/:us', (req, res) => {
 app.get('/evde/:form/:id', (req, res) => {
     const id = req.params.id
     const form = req.params.form
-    conn.query("SELECT * FROM event RIGHT JOIN eved ON event.ev_id = eved.ev_id WHERE event.fm_id = ? AND eved.us_id = ? ORDER BY event.ev_qur DESC;", [form, id], (err, evifd, fields) => {
+    conn.query("SELECT * FROM event RIGHT JOIN eved ON event.ev_id = eved.ev_id WHERE event.fm_id = ? AND eved.us_id = ? ORDER BY event.ev_qur, ABS(event.fms_id);", [form, id], (err, evifd, fields) => {
+        res.send(evifd)
+    })
+});
+
+app.get('/evdeq/:form/:id/:qur', (req, res) => {
+    const id = req.params.id
+    const form = req.params.form
+    const qur = req.params.qur
+    conn.query("SELECT * FROM event RIGHT JOIN eved ON event.ev_id = eved.ev_id WHERE event.fm_id = ? AND eved.us_id = ? AND event.ev_qur = ? ORDER BY event.ev_qur, ABS(event.fms_id);", [form, id, qur], (err, evifd, fields) => {
         res.send(evifd)
     })
 });
 
 app.get('/evde/f/:id/a', (req, res) => {
     const id = req.params.id
-    conn.query("SELECT * FROM event RIGHT JOIN eved ON event.ev_id = eved.ev_id WHERE event.fm_id = ? ORDER BY eved.us_id ASC, ABS(event.ev_id);", [id], (err, evid, fields) => {
+    conn.query("SELECT * FROM event RIGHT JOIN eved ON event.ev_id = eved.ev_id WHERE event.fm_id = ? ORDER BY event.ev_qur, eved.us_id, ABS(event.fms_id);", [id], (err, evid, fields) => {
         res.send(evid)
     })
 });
@@ -766,6 +775,287 @@ app.post("/rm/pdf/:name", jsonParser, (req, res, next) => {
             console.error(err)
             return
         }
+    })
+})
+
+
+//newdash
+app.get("/dashh", jsonParser, (req, res) => {
+    const fm = req.query.fm
+    var sql
+    // var q = 0;
+    // var p = 0;
+    var cc = 0;
+    var cq = 1;
+    var rr;
+    // var iq = 0;
+    var c1 = [];
+    var c2 = [];
+    var c = [];
+    var cc1 = 0;
+    var cc2 = 0;
+
+    var dd = 0;
+    var q1, q2, q3, q4;
+    var gg = [], hh = []
+    var h1 = [], h2 = [], h3 = [], h4 = [], h5 = [], h6 = [], h7 = [], h8 = [], h9 = [], h10 = [], h11 = [], h12 = [], h13 = []
+    var g1 = [], g2 = [], g3 = [], g4 = [], g5 = [], g6 = [], g7 = [], g8 = [], g9 = [], g10 = [], g11 = [], g12 = [], g13 = []
+    var h = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var g = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var dqur1 = 0;
+    var dqur2 = 0;
+    var dqur3 = 0;
+    var dqur4 = 0;
+    var bdqur1 = 0;
+    var bdqur2 = 0;
+    var bdqur3 = 0;
+    var bdqur4 = 0;
+    var hos = [];
+    // var pr1;
+    // var pr2;
+    if (fm) {
+        sql = "SELECT * FROM `all` WHERE fm_id = ? ORDER BY de_qur, us_id;"
+    } else {
+        sql = "SELECT * FROM `all` ORDER BY de_qur, us_id;"
+    }
+
+    conn.query(sql, [fm], (err, results, field) => {
+        results = results.map((r, j) => {
+            var z = String(r.fm_paras).split(", ")
+            var y = r.de_paras.split(", ")
+            rr = (r.fm_res.split(", ")).length
+            var cn = 0
+            for (var i = 1; i <= z.length; i++) {
+                if (`${z[i - 1]}`[(z[i - 1].length) - 1] === "*") {
+                    cn += 1
+                    if (cn < 2) {
+                            cc = 1
+
+                            c1.push(y[i - 1])
+
+                            cc1 += Number(y[i - 1])
+
+                            if (r.de_qur === "1") {
+                                dqur1 += Number(y[i - 1])
+                            }
+                            if (r.de_qur === "2") {
+                                dqur2 += Number(y[i - 1])
+                            }
+                            if (r.de_qur === "3") {
+                                dqur3 += Number(y[i - 1])
+                            }
+                            if (r.de_qur === "4") {
+                                dqur4 += Number(y[i - 1])
+                            }
+
+                            if (r.us_id === 10) {
+                                h1.push(Number(y[i - 1]))
+                                h[0] += Number(y[i - 1])
+                                hh = h1
+                            }
+                            if (r.us_id === 11) {
+                                h2.push(Number(y[i - 1]))
+                                h[1] += Number(y[i - 1])
+                                hh = h2
+                            }
+                            if (r.us_id === 12) {
+                                h3.push(Number(y[i - 1]))
+                                h[2] += Number(y[i - 1])
+                                hh = h3
+                            }
+                            if (r.us_id === 13) {
+                                h4.push(Number(y[i - 1]))
+                                h[3] += Number(y[i - 1])
+                                hh = h4
+                            }
+                            if (r.us_id === 14) {
+                                h5.push(Number(y[i - 1]))
+                                h[4] += Number(y[i - 1])
+                                hh = h5
+                            }
+                            if (r.us_id === 15) {
+                                h6.push(Number(y[i - 1]))
+                                h[5] += Number(y[i - 1])
+                                hh = h6
+                            }
+                            if (r.us_id === 16) {
+                                h7.push(Number(y[i - 1]))
+                                h[6] += Number(y[i - 1])
+                                hh = h7
+                            }
+                            if (r.us_id === 17) {
+                                h8.push(Number(y[i - 1]))
+                                h[7] += Number(y[i - 1])
+                                hh = h8
+                            }
+                            if (r.us_id === 18) {
+                                h9.push(Number(y[i - 1]))
+                                h[8] += Number(y[i - 1])
+                                hh = h9
+                            }
+                            if (r.us_id === 19) {
+                                h10.push(Number(y[i - 1]))
+                                h[9] += Number(y[i - 1])
+                                hh = h10
+                            }
+                            if (r.us_id === 20) {
+                                h11.push(Number(y[i - 1]))
+                                h[10] += Number(y[i - 1])
+                                hh = h11
+                            }
+                            if (r.us_id === 21) {
+                                h12.push(Number(y[i - 1]))
+                                h[11] += Number(y[i - 1])
+                                hh = h12
+                            }
+                            if (r.us_id === 22) {
+                                h13.push(Number(y[i - 1]))
+                                h[12] += Number(y[i - 1])
+                                hh = h13
+                            }
+
+
+                    } else {
+                        
+                            c2.push(y[i - 1])
+                            cc2 += Number(y[i - 1])
+                            if (r.de_qur === "1") {
+                                bdqur1 += Number(y[i - 1])
+                            }
+                            if (r.de_qur === "2") {
+                                bdqur2 += Number(y[i - 1])
+                            }
+                            if (r.de_qur === "3") {
+                                bdqur3 += Number(y[i - 1])
+                            }
+                            if (r.de_qur === "4") {
+                                bdqur4 += Number(y[i - 1])
+                            }
+                            //console.log(y[i - 1], j)
+                            if (r.us_id === 10) {
+                                g1.push(Number(y[i - 1]))
+                                g[0] += Number(y[i - 1])
+                                gg = g1
+                            }
+                            if (r.us_id === 11) {
+                                g2.push(Number(y[i - 1]))
+                                g[1] += Number(y[i - 1])
+                                gg = g2
+                            }
+                            if (r.us_id === 12) {
+                                g3.push(Number(y[i - 1]))
+                                g[2] += Number(y[i - 1])
+                                gg = g3
+                            }
+                            if (r.us_id === 13) {
+                                g4.push(Number(y[i - 1]))
+                                g[3] += Number(y[i - 1])
+                                gg = g4
+                            }
+                            if (r.us_id === 14) {
+                                g5.push(Number(y[i - 1]))
+                                g[4] += Number(y[i - 1])
+                                gg = g5
+                            }
+                            if (r.us_id === 15) {
+                                g6.push(Number(y[i - 1]))
+                                g[5] += Number(y[i - 1])
+                                gg = g6
+                            }
+                            if (r.us_id === 16) {
+                                g7.push(Number(y[i - 1]))
+                                g[6] += Number(y[i - 1])
+                                gg = g7
+                            }
+                            if (r.us_id === 17) {
+                                g8.push(Number(y[i - 1]))
+                                g[7] += Number(y[i - 1])
+                                gg = g8
+                            }
+                            if (r.us_id === 18) {
+                                g9.push(Number(y[i - 1]))
+                                g[8] += Number(y[i - 1])
+                                gg = g9
+                            }
+                            if (r.us_id === 19) {
+                                g10.push(Number(y[i - 1]))
+                                g[9] += Number(y[i - 1])
+                                gg = g10
+                            }
+                            if (r.us_id === 20) {
+                                g11.push(Number(y[i - 1]))
+                                g[10] += Number(y[i - 1])
+                                gg = g11
+                            }
+                            if (r.us_id === 21) {
+                                g12.push(Number(y[i - 1]))
+                                g[11] += Number(y[i - 1])
+                                gg = g12
+                            }
+                            if (r.us_id === 22) {
+                                g13.push(Number(y[i - 1]))
+                                g[12] += Number(y[i - 1])
+                                gg = g13
+                            }
+
+                            cc = 0
+                        
+                    }
+
+
+                    c.push(Number(y[i - 1]))
+
+                }
+            }
+            // console.log(c1, 1)
+            // console.log(c2, 2)
+            r.de_qur = { p1: hh, p2: gg }
+            //r.fm_paras = Number(((c2[j] / c1[j]) * 100).toFixed(2))
+            //r.de_paras = `${c1[j]}, ${c2[j]}`
+            r.de_paras = [Number(c1[j]), Number(c2[j])]
+
+            return r
+
+        }
+
+        )
+
+        //var sum = Number(((cc2 / cc1) * 100).toFixed(2))
+
+        q1 = bdqur1 / dqur1
+        q2 = bdqur2 / dqur2
+        q3 = bdqur3 / dqur3
+        q4 = bdqur4 / dqur4
+
+        if (isNaN(q1)) {
+            q1 = 0
+        }
+        if (isNaN(q2)) {
+            q2 = 0
+        }
+        if (isNaN(q3)) {
+            q3 = 0
+        }
+        if (isNaN(q4)) {
+            q4 = 0
+        }
+        var calq = { q1: [bdqur1, dqur1], q2: [bdqur2, dqur2], q3: [bdqur3, dqur3], q4: [bdqur4, dqur4] }
+        //var sumq = [Number(q1.toFixed(2)), Number(q2.toFixed(2)), Number(q3.toFixed(2)), Number(q4.toFixed(2))]
+        // c.map((t, g) => {
+        //     if (g % 2 === 0 && g < 2 * rr) {
+        //         return (
+        //             hos.push(Number((c[g + 1] / c[g]).toFixed(2)))
+        //         )
+        //     } else if (g > rr) {
+        //         console.log(hos[g - rr], g)
+        //         //hos[g-rr] = Number(((c[g+1]+c[g-rr+1])/(c[g]+c[g-rr])).toFixed(2))
+        //     }
+
+        // })
+        var hg = { h, g }
+        //console.log(rr)
+        //res.json({ date: results, dash: [{ hos: hg, calq: [calq], sumq: sumq, calp: [cc1, cc2], cals: sum }] })
+        res.json({ data: results, dash: [{ hos: hg, calq: [calq], calp: [cc2, cc1] }] })
     })
 })
 

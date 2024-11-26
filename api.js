@@ -108,21 +108,26 @@ app.get('/users/:id', (req, res) => {
 
 // form
 app.post('/form/add', jsonParser, (req, res, next) => {
-    var Isql = "INSERT INTO form (fm_id, fm_name, fm_solve, fm_method, fm_define, fm_paras, fm_com, fm_con, fm_numpara, fm_res) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    var IV = [req.body.id, req.body.name, req.body.solve, req.body.method, req.body.def, req.body.paras, req.body.com, req.body.con, req.body.numpara, req.body.res]
+    var Isql = "INSERT INTO form (fm_id, fm_name, fm_solve, fm_method, fm_define, fm_paras, fm_com, fm_con, fm_numpara, fm_res) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    var IV = [req.body.id, req.body.name, req.body.solve, req.body.method, req.body.def, req.body.paras, req.body.com, req.body.con, req.body.numpara, req.body.res, req.year.res]
     conn.execute(Isql, IV, (err, results, fields) => {
         if (err) {
             res.json({ status: 'error', massage: err })
             return
         } else
             res.json({ status: 'ok' })
-
     })
+})
 
+app.get("/form/year/:yy", jsonParser, (req, res, next) => {
+    const yy = req.params.yy
+    conn.query(`SELECT * FROM form WHERE year = ${yy} ORDER BY ABS(fm_id) ASC`, (err, form, fields) => {
+        res.send(form);
+    })
 })
 
 app.get("/form", jsonParser, (req, res, next) => {
-    conn.query("SELECT * FROM form ORDER BY ABS(fm_id) ASC", (err, form, fields) => {
+    conn.query(`SELECT * FROM form ORDER BY ABS(fm_id) ASC`, (err, form, fields) => {
         res.send(form);
     })
 })
@@ -138,12 +143,27 @@ app.get("/form/res/:id", jsonParser, (req, res, next) => {
     })
 })
 
+app.get("/form/res/:id/:yy", jsonParser, (req, res, next) => {
+    const id = req.params.id
+    const yy = req.params.yy
+    conn.query(`SELECT fm_id FROM form WHERE fm_res LIKE '%${id}%' AND year = ${yy} ORDER BY ABS(fm_id);`, (err, resp, fields) => {
+        res.send(resp);
+    })
+})
+
 app.get("/form/:id", jsonParser, (req, res, next) => {
     const id = req.params.id
-    conn.query(`SELECT * FROM form WHERE fm_id = ${id}`, (err, form, fields) => {
+    conn.query('SELECT * FROM form WHERE fm_id = ?', [id], (err, form, fields) => {
         res.send(form);
     })
 })
+
+// app.get("/form/:id", jsonParser, (req, res, next) => {
+//     const id = req.params.id
+//     conn.query(`SELECT * FROM form WHERE fm_id = ${id}`, (err, form, fields) => {
+//         res.send(form);
+//     })
+// })
 
 app.put("/update/form", jsonParser, (req, res, next) => {
     var sql = "UPDATE form SET fm_name = ?, fm_solve= ?, fm_define = ? WHERE fm_id = ?"
@@ -575,11 +595,30 @@ app.get("/checked/:qu", jsonParser, (req, res, next) => {
     })
 })
 
+app.get("/checked/year/:qu/:yy", jsonParser, (req, res, next) => {
+    var qu = req.params.qu
+    var yy = req.params.yy
+    const sql = "SELECT formed.us_id, detail.fm_id, form.fm_res, detail.de_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id RIGHT JOIN form ON detail.fm_id = form.fm_id WHERE detail.de_qur = ? AND form.year = ? ORDER BY us_id, fm_id"
+    conn.query(sql, [qu,yy], (req, results, fields) => {
+        res.send(results)
+    })
+})
+
 app.get("/checked/:qu/:us", jsonParser, (req, res, next) => {
     var qu = req.params.qu
     var us = req.params.us
     const sql = "SELECT formed.us_id, detail.fm_id, form.fm_res, detail.de_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id RIGHT JOIN form ON detail.fm_id = form.fm_id WHERE detail.de_qur = ? AND formed.us_id = ? ORDER BY ABS(form.fm_id) ASC;"
     conn.query(sql, [qu, us], (req, results, fields) => {
+        res.send(results)
+    })
+})
+
+app.get("/checked/year/:qu/:us/:yy", jsonParser, (req, res, next) => {
+    var qu = req.params.qu
+    var us = req.params.us
+    var yy = req.params.yy
+    const sql = "SELECT formed.us_id, detail.fm_id, form.fm_res, detail.de_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id RIGHT JOIN form ON detail.fm_id = form.fm_id WHERE detail.de_qur = ? AND formed.us_id = ? AND form.year = ? ORDER BY ABS(form.fm_id) ASC;"
+    conn.query(sql, [qu, us, yy], (req, results, fields) => {
         res.send(results)
     })
 })
@@ -615,6 +654,15 @@ app.get("/checked/s/:qu/c", jsonParser, (req, res, next) => {
     var qu = req.params.qu
     const sql = "SELECT detail.fm_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id RIGHT JOIN form ON detail.fm_id = form.fm_id WHERE detail.de_qur = ? GROUP BY fm_id ORDER BY ABS(form.fm_id)"
     conn.query(sql, [qu], (req, results, fields) => {
+        res.send(results)
+    })
+})
+
+app.get("/checked/s/:qu/:yy", jsonParser, (req, res, next) => {
+    var qu = req.params.qu
+    const yy = req.params.yy
+    const sql = "SELECT detail.fm_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id RIGHT JOIN form ON detail.fm_id = form.fm_id WHERE detail.de_qur = ? AND form.year = ? GROUP BY fm_id ORDER BY ABS(form.fm_id)"
+    conn.query(sql, [qu, yy], (req, results, fields) => {
         res.send(results)
     })
 })
@@ -664,6 +712,7 @@ app.get('/evdeq/:form/:id/:qur', (req, res) => {
         res.send(evifd)
     })
 });
+
 
 app.get('/evde/f/:id/a', (req, res) => {
     const id = req.params.id

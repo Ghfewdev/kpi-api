@@ -121,7 +121,7 @@ app.post('/form/add', jsonParser, (req, res, next) => {
 
 app.get("/form/year/:yy", jsonParser, (req, res, next) => {
     const yy = req.params.yy
-    conn.query(`SELECT * FROM form WHERE year = ${yy} ORDER BY ABS(fm_id) ASC`, (err, form, fields) => {
+    conn.query("SELECT * FROM form WHERE year = ? ORDER BY ABS(fm_id) ASC", [yy], (err, form, fields) => {
         res.send(form);
     })
 })
@@ -138,7 +138,7 @@ app.get("/form/undefined", jsonParser, (req, res, next) => {
 
 app.get("/form/res/:id", jsonParser, (req, res, next) => {
     const id = req.params.id
-    conn.query(`SELECT fm_id FROM form WHERE fm_res LIKE '%${id}%' ORDER BY ABS(fm_id);`, (err, resp, fields) => {
+    conn.query("SELECT fm_id FROM form WHERE fm_res LIKE '%?%' ORDER BY ABS(fm_id);", [id], (err, resp, fields) => {
         res.send(resp);
     })
 })
@@ -146,7 +146,7 @@ app.get("/form/res/:id", jsonParser, (req, res, next) => {
 app.get("/form/res/:id/:yy", jsonParser, (req, res, next) => {
     const id = req.params.id
     const yy = req.params.yy
-    conn.query(`SELECT fm_id FROM form WHERE fm_res LIKE '%${id}%' AND year = ${yy} ORDER BY ABS(fm_id);`, (err, resp, fields) => {
+    conn.query("SELECT fm_id FROM form WHERE fm_res LIKE '%?%' AND year = ? ORDER BY ABS(fm_id);", [id, yy], (err, resp, fields) => {
         res.send(resp);
     })
 })

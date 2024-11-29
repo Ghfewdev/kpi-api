@@ -1,0 +1,3 @@
+sudo docker cp server-api-1:app/images backupimg
+
+sudo docker cp server-api-1:app/pdfs backuppdf

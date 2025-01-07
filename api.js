@@ -232,14 +232,14 @@ app.post("/detail/delete/:id/:hn/:fd", jsonParser, (req, res, next) => {
     var id = req.params.id;
     const fd = req.params.fd
     const hn = req.params.hn
-    var sql = `UPDATE result SET ${hn} = ?, ${hn}pa = ?, ${hn}pb = ?, pa1 = ?, pa2 = ?, re_log = ?, re_sum = ? WHERE fm_id = ${fd}`
-    const up = [req.body.h, req.body.hpa1, req.body.hpa2, req.body.pa1, req.body.pa2, req.body.log, req.body.sum]
+    // var sql = `UPDATE result SET ${hn} = ?, ${hn}pa = ?, ${hn}pb = ?, pa1 = ?, pa2 = ?, re_log = ?, re_sum = ? WHERE fm_id = ${fd}`
+    // const up = [req.body.h, req.body.hpa1, req.body.hpa2, req.body.pa1, req.body.pa2, req.body.log, req.body.sum]
 
-    conn.execute(sql, up, (err, upd, fields) => {
-        if (err) {
-            res.json({ status: 'error', massage: err })
-            return
-        } else {
+    // conn.execute(sql, up, (err, upd, fields) => {
+        // if (err) {
+        //     res.json({ status: 'error', massage: err })
+        //     return
+        // } else {
             conn.execute("DELETE FROM formed WHERE de_id = ?", [id], (err, del, filelds) => {
                 if (err) {
                     res.json({ status: 'error', massage: err })
@@ -255,12 +255,11 @@ app.post("/detail/delete/:id/:hn/:fd", jsonParser, (req, res, next) => {
                     })
                 }
             })
-        }
+        // }
 
     })
 
-
-})
+// })
 
 //eved
 app.post('/eved/fill', jsonParser, (req, res, next) => {

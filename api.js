@@ -208,6 +208,14 @@ app.get("/detail", jsonParser, (req, res, next) => {
     })
 })
 
+app.get("/detail/user/:id/:de", jsonParser, (req, res, next) => {
+    const id = req.params.id
+    const de = req.params.de
+    conn.query("SELECT * FROM detail RIGHT JOIN formed ON detail.de_id = formed.de_id WHERE formed.us_id = ? AND detail.fm_id = ? ORDER BY detail.de_qur DESC", [id, String(de)], (err, detail, fields) => {
+        res.send(detail);
+    })
+})
+
 
 app.get("/detail/:id", jsonParser, (req, res, next) => {
     const id = req.params.id;

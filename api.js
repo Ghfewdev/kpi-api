@@ -11,6 +11,17 @@ const conn = mysql.createPool({
     password: process.env.DB_PASS,
     database: process.env.DB_DATABASE
 })
+
+const db = mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    // port: process.env.DB_PORT,
+    password: process.env.DB_PASS,
+    database: process.env.DB_DATABASE2
+})
+
+const pool = db.promise();
+
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const jwt = require('jsonwebtoken');
@@ -138,7 +149,7 @@ app.get("/form/undefined", jsonParser, (req, res, next) => {
 
 app.get("/form/res/:id", jsonParser, (req, res, next) => {
     const id = req.params.id
-    conn.query("SELECT fm_id FROM form WHERE fm_res LIKE ? ORDER BY ABS(fm_id);", ["%"+id+"%"], (err, resp, fields) => {
+    conn.query("SELECT fm_id FROM form WHERE fm_res LIKE ? ORDER BY ABS(fm_id);", ["%" + id + "%"], (err, resp, fields) => {
         res.send(resp);
     })
 })
@@ -146,7 +157,7 @@ app.get("/form/res/:id", jsonParser, (req, res, next) => {
 app.get("/form/res/:id/:yy", jsonParser, (req, res, next) => {
     const id = req.params.id
     const yy = req.params.yy
-    conn.query("SELECT fm_id FROM form WHERE fm_res LIKE ? AND year = ? ORDER BY ABS(fm_id);", ["%"+id+"%", yy], (err, resp, fields) => {
+    conn.query("SELECT fm_id FROM form WHERE fm_res LIKE ? AND year = ? ORDER BY ABS(fm_id);", ["%" + id + "%", yy], (err, resp, fields) => {
         res.send(resp);
     })
 })
@@ -244,28 +255,28 @@ app.post("/detail/delete/:id/:hn/:fd", jsonParser, (req, res, next) => {
     // const up = [req.body.h, req.body.hpa1, req.body.hpa2, req.body.pa1, req.body.pa2, req.body.log, req.body.sum]
 
     // conn.execute(sql, up, (err, upd, fields) => {
-        // if (err) {
-        //     res.json({ status: 'error', massage: err })
-        //     return
-        // } else {
-            conn.execute("DELETE FROM formed WHERE de_id = ?", [id], (err, del, filelds) => {
+    // if (err) {
+    //     res.json({ status: 'error', massage: err })
+    //     return
+    // } else {
+    conn.execute("DELETE FROM formed WHERE de_id = ?", [id], (err, del, filelds) => {
+        if (err) {
+            res.json({ status: 'error', massage: err })
+            return
+        } else {
+            conn.execute("DELETE FROM detail WHERE de_id = ?", [id], (err, del, filelds) => {
                 if (err) {
                     res.json({ status: 'error', massage: err })
                     return
                 } else {
-                    conn.execute("DELETE FROM detail WHERE de_id = ?", [id], (err, del, filelds) => {
-                        if (err) {
-                            res.json({ status: 'error', massage: err })
-                            return
-                        } else {
-                            res.json({ status: 'ok' })
-                        }
-                    })
+                    res.json({ status: 'ok' })
                 }
             })
-        // }
-
+        }
     })
+    // }
+
+})
 
 // })
 
@@ -606,7 +617,7 @@ app.get("/checked/year/:qu/:yy", jsonParser, (req, res, next) => {
     var qu = req.params.qu
     var yy = req.params.yy
     const sql = "SELECT formed.us_id, detail.fm_id, form.fm_res, detail.de_id FROM formed RIGHT JOIN detail ON formed.de_id = detail.de_id RIGHT JOIN form ON detail.fm_id = form.fm_id WHERE detail.de_qur = ? AND form.year = ? ORDER BY us_id, fm_id"
-    conn.query(sql, [qu,yy], (req, results, fields) => {
+    conn.query(sql, [qu, yy], (req, results, fields) => {
         res.send(results)
     })
 })
@@ -885,177 +896,177 @@ app.get("/dashh", jsonParser, (req, res) => {
                 if (`${z[i - 1]}`[(z[i - 1].length) - 1] === "*") {
                     cn += 1
                     if (cn < 2) {
-                            cc = 1
+                        cc = 1
 
-                            c1.push(y[i - 1])
+                        c1.push(y[i - 1])
 
-                            cc1 += Number(y[i - 1])
+                        cc1 += Number(y[i - 1])
 
-                            if (r.de_qur === "1") {
-                                dqur1 += Number(y[i - 1])
-                            }
-                            if (r.de_qur === "2") {
-                                dqur2 += Number(y[i - 1])
-                            }
-                            if (r.de_qur === "3") {
-                                dqur3 += Number(y[i - 1])
-                            }
-                            if (r.de_qur === "4") {
-                                dqur4 += Number(y[i - 1])
-                            }
+                        if (r.de_qur === "1") {
+                            dqur1 += Number(y[i - 1])
+                        }
+                        if (r.de_qur === "2") {
+                            dqur2 += Number(y[i - 1])
+                        }
+                        if (r.de_qur === "3") {
+                            dqur3 += Number(y[i - 1])
+                        }
+                        if (r.de_qur === "4") {
+                            dqur4 += Number(y[i - 1])
+                        }
 
-                            if (r.us_id === 10) {
-                                h1.push(Number(y[i - 1]))
-                                h[0] += Number(y[i - 1])
-                                hh = h1
-                            }
-                            if (r.us_id === 11) {
-                                h2.push(Number(y[i - 1]))
-                                h[1] += Number(y[i - 1])
-                                hh = h2
-                            }
-                            if (r.us_id === 12) {
-                                h3.push(Number(y[i - 1]))
-                                h[2] += Number(y[i - 1])
-                                hh = h3
-                            }
-                            if (r.us_id === 13) {
-                                h4.push(Number(y[i - 1]))
-                                h[3] += Number(y[i - 1])
-                                hh = h4
-                            }
-                            if (r.us_id === 14) {
-                                h5.push(Number(y[i - 1]))
-                                h[4] += Number(y[i - 1])
-                                hh = h5
-                            }
-                            if (r.us_id === 15) {
-                                h6.push(Number(y[i - 1]))
-                                h[5] += Number(y[i - 1])
-                                hh = h6
-                            }
-                            if (r.us_id === 16) {
-                                h7.push(Number(y[i - 1]))
-                                h[6] += Number(y[i - 1])
-                                hh = h7
-                            }
-                            if (r.us_id === 17) {
-                                h8.push(Number(y[i - 1]))
-                                h[7] += Number(y[i - 1])
-                                hh = h8
-                            }
-                            if (r.us_id === 18) {
-                                h9.push(Number(y[i - 1]))
-                                h[8] += Number(y[i - 1])
-                                hh = h9
-                            }
-                            if (r.us_id === 19) {
-                                h10.push(Number(y[i - 1]))
-                                h[9] += Number(y[i - 1])
-                                hh = h10
-                            }
-                            if (r.us_id === 20) {
-                                h11.push(Number(y[i - 1]))
-                                h[10] += Number(y[i - 1])
-                                hh = h11
-                            }
-                            if (r.us_id === 21) {
-                                h12.push(Number(y[i - 1]))
-                                h[11] += Number(y[i - 1])
-                                hh = h12
-                            }
-                            if (r.us_id === 22) {
-                                h13.push(Number(y[i - 1]))
-                                h[12] += Number(y[i - 1])
-                                hh = h13
-                            }
+                        if (r.us_id === 10) {
+                            h1.push(Number(y[i - 1]))
+                            h[0] += Number(y[i - 1])
+                            hh = h1
+                        }
+                        if (r.us_id === 11) {
+                            h2.push(Number(y[i - 1]))
+                            h[1] += Number(y[i - 1])
+                            hh = h2
+                        }
+                        if (r.us_id === 12) {
+                            h3.push(Number(y[i - 1]))
+                            h[2] += Number(y[i - 1])
+                            hh = h3
+                        }
+                        if (r.us_id === 13) {
+                            h4.push(Number(y[i - 1]))
+                            h[3] += Number(y[i - 1])
+                            hh = h4
+                        }
+                        if (r.us_id === 14) {
+                            h5.push(Number(y[i - 1]))
+                            h[4] += Number(y[i - 1])
+                            hh = h5
+                        }
+                        if (r.us_id === 15) {
+                            h6.push(Number(y[i - 1]))
+                            h[5] += Number(y[i - 1])
+                            hh = h6
+                        }
+                        if (r.us_id === 16) {
+                            h7.push(Number(y[i - 1]))
+                            h[6] += Number(y[i - 1])
+                            hh = h7
+                        }
+                        if (r.us_id === 17) {
+                            h8.push(Number(y[i - 1]))
+                            h[7] += Number(y[i - 1])
+                            hh = h8
+                        }
+                        if (r.us_id === 18) {
+                            h9.push(Number(y[i - 1]))
+                            h[8] += Number(y[i - 1])
+                            hh = h9
+                        }
+                        if (r.us_id === 19) {
+                            h10.push(Number(y[i - 1]))
+                            h[9] += Number(y[i - 1])
+                            hh = h10
+                        }
+                        if (r.us_id === 20) {
+                            h11.push(Number(y[i - 1]))
+                            h[10] += Number(y[i - 1])
+                            hh = h11
+                        }
+                        if (r.us_id === 21) {
+                            h12.push(Number(y[i - 1]))
+                            h[11] += Number(y[i - 1])
+                            hh = h12
+                        }
+                        if (r.us_id === 22) {
+                            h13.push(Number(y[i - 1]))
+                            h[12] += Number(y[i - 1])
+                            hh = h13
+                        }
 
 
                     } else {
-                        
-                            c2.push(y[i - 1])
-                            cc2 += Number(y[i - 1])
-                            if (r.de_qur === "1") {
-                                bdqur1 += Number(y[i - 1])
-                            }
-                            if (r.de_qur === "2") {
-                                bdqur2 += Number(y[i - 1])
-                            }
-                            if (r.de_qur === "3") {
-                                bdqur3 += Number(y[i - 1])
-                            }
-                            if (r.de_qur === "4") {
-                                bdqur4 += Number(y[i - 1])
-                            }
-                            //console.log(y[i - 1], j)
-                            if (r.us_id === 10) {
-                                g1.push(Number(y[i - 1]))
-                                g[0] += Number(y[i - 1])
-                                gg = g1
-                            }
-                            if (r.us_id === 11) {
-                                g2.push(Number(y[i - 1]))
-                                g[1] += Number(y[i - 1])
-                                gg = g2
-                            }
-                            if (r.us_id === 12) {
-                                g3.push(Number(y[i - 1]))
-                                g[2] += Number(y[i - 1])
-                                gg = g3
-                            }
-                            if (r.us_id === 13) {
-                                g4.push(Number(y[i - 1]))
-                                g[3] += Number(y[i - 1])
-                                gg = g4
-                            }
-                            if (r.us_id === 14) {
-                                g5.push(Number(y[i - 1]))
-                                g[4] += Number(y[i - 1])
-                                gg = g5
-                            }
-                            if (r.us_id === 15) {
-                                g6.push(Number(y[i - 1]))
-                                g[5] += Number(y[i - 1])
-                                gg = g6
-                            }
-                            if (r.us_id === 16) {
-                                g7.push(Number(y[i - 1]))
-                                g[6] += Number(y[i - 1])
-                                gg = g7
-                            }
-                            if (r.us_id === 17) {
-                                g8.push(Number(y[i - 1]))
-                                g[7] += Number(y[i - 1])
-                                gg = g8
-                            }
-                            if (r.us_id === 18) {
-                                g9.push(Number(y[i - 1]))
-                                g[8] += Number(y[i - 1])
-                                gg = g9
-                            }
-                            if (r.us_id === 19) {
-                                g10.push(Number(y[i - 1]))
-                                g[9] += Number(y[i - 1])
-                                gg = g10
-                            }
-                            if (r.us_id === 20) {
-                                g11.push(Number(y[i - 1]))
-                                g[10] += Number(y[i - 1])
-                                gg = g11
-                            }
-                            if (r.us_id === 21) {
-                                g12.push(Number(y[i - 1]))
-                                g[11] += Number(y[i - 1])
-                                gg = g12
-                            }
-                            if (r.us_id === 22) {
-                                g13.push(Number(y[i - 1]))
-                                g[12] += Number(y[i - 1])
-                                gg = g13
-                            }
 
-                            cc = 0
-                        
+                        c2.push(y[i - 1])
+                        cc2 += Number(y[i - 1])
+                        if (r.de_qur === "1") {
+                            bdqur1 += Number(y[i - 1])
+                        }
+                        if (r.de_qur === "2") {
+                            bdqur2 += Number(y[i - 1])
+                        }
+                        if (r.de_qur === "3") {
+                            bdqur3 += Number(y[i - 1])
+                        }
+                        if (r.de_qur === "4") {
+                            bdqur4 += Number(y[i - 1])
+                        }
+                        //console.log(y[i - 1], j)
+                        if (r.us_id === 10) {
+                            g1.push(Number(y[i - 1]))
+                            g[0] += Number(y[i - 1])
+                            gg = g1
+                        }
+                        if (r.us_id === 11) {
+                            g2.push(Number(y[i - 1]))
+                            g[1] += Number(y[i - 1])
+                            gg = g2
+                        }
+                        if (r.us_id === 12) {
+                            g3.push(Number(y[i - 1]))
+                            g[2] += Number(y[i - 1])
+                            gg = g3
+                        }
+                        if (r.us_id === 13) {
+                            g4.push(Number(y[i - 1]))
+                            g[3] += Number(y[i - 1])
+                            gg = g4
+                        }
+                        if (r.us_id === 14) {
+                            g5.push(Number(y[i - 1]))
+                            g[4] += Number(y[i - 1])
+                            gg = g5
+                        }
+                        if (r.us_id === 15) {
+                            g6.push(Number(y[i - 1]))
+                            g[5] += Number(y[i - 1])
+                            gg = g6
+                        }
+                        if (r.us_id === 16) {
+                            g7.push(Number(y[i - 1]))
+                            g[6] += Number(y[i - 1])
+                            gg = g7
+                        }
+                        if (r.us_id === 17) {
+                            g8.push(Number(y[i - 1]))
+                            g[7] += Number(y[i - 1])
+                            gg = g8
+                        }
+                        if (r.us_id === 18) {
+                            g9.push(Number(y[i - 1]))
+                            g[8] += Number(y[i - 1])
+                            gg = g9
+                        }
+                        if (r.us_id === 19) {
+                            g10.push(Number(y[i - 1]))
+                            g[9] += Number(y[i - 1])
+                            gg = g10
+                        }
+                        if (r.us_id === 20) {
+                            g11.push(Number(y[i - 1]))
+                            g[10] += Number(y[i - 1])
+                            gg = g11
+                        }
+                        if (r.us_id === 21) {
+                            g12.push(Number(y[i - 1]))
+                            g[11] += Number(y[i - 1])
+                            gg = g12
+                        }
+                        if (r.us_id === 22) {
+                            g13.push(Number(y[i - 1]))
+                            g[12] += Number(y[i - 1])
+                            gg = g13
+                        }
+
+                        cc = 0
+
                     }
 
 
@@ -1114,6 +1125,409 @@ app.get("/dashh", jsonParser, (req, res) => {
         res.json({ data: results, dash: [{ hos: hg, calq: [calq], calp: [cc2, cc1] }] })
     })
 })
+
+//New kpi summary
+
+function checkPassed(value, target, operator) {
+    switch (operator) {
+        case ">=": return value >= target ? 1 : 0;
+        case "<=": return value <= target ? 1 : 0;
+        case ">": return value > target ? 1 : 0;
+        case "<": return value < target ? 1 : 0;
+        case "==": return value == target ? 1 : 0;
+        default: return 0;
+    }
+}
+
+app.get("/api/kpi-summary", jsonParser, (req, res) => {
+    const fiscalYear = req.query.fiscal_year || null;
+    const quarter = req.query.quarter || null;
+
+    // 1️⃣ โหลด indicators
+    db.query("SELECT * FROM indicators", (err, indicators) => {
+        if (err) return res.status(500).json({ error: err.message });
+
+        // 2️⃣ โหลด agencies
+        db.query("SELECT * FROM agencies", (err, agencies) => {
+            if (err) return res.status(500).json({ error: err.message });
+
+            // 3️⃣ dynamic WHERE
+            let where = `WHERE 1=1`;
+            const params = [];
+
+            if (fiscalYear) {
+                where += ` AND r.fiscal_year = ?`;
+                params.push(fiscalYear);
+            }
+
+            if (quarter) {
+                where += ` AND r.quarter = ?`;
+                params.push(quarter);
+            }
+
+            // 4️⃣ โหลด reports
+            const sql = `
+        SELECT
+          r.*, 
+          i.code AS indicators_code, 
+          i.name AS indicators_name,
+          i.formula, 
+          i.target_value, 
+          i.operator
+        FROM indicator_reports r
+        JOIN indicators i ON r.indicator_id = i.id
+        ${where}
+      `;
+
+            db.query(sql, params, (err, reports) => {
+                if (err) return res.status(500).json({ error: err.message });
+
+                const summary = {};
+                const data = [];
+
+                agencies.forEach((agency) => {
+                    const agencyReports = reports.filter(
+                        (r) => r.agency_id === agency.id
+                    );
+
+                    const totalIndicators = agencyReports.length;
+
+                    const passedIndicators = agencyReports.filter((r) => {
+                        let actual_value;
+
+                        if (r.calculated_value !== null) {
+                            actual_value = r.calculated_value;
+                        } else if (
+                            r.value_a !== null &&
+                            r.value_b !== null &&
+                            r.value_b !== 0
+                        ) {
+                            actual_value = (r.value_a / r.value_b) * 100;
+                        } else {
+                            actual_value = r.value_a;
+                        }
+
+                        return checkPassed(actual_value, r.target_value, r.operator);
+                    }).length;
+
+                    summary[agency.id] = {
+                        sent: totalIndicators,
+                        pass: passedIndicators,
+                        persent: totalIndicators
+                            ? (passedIndicators / totalIndicators) * 100
+                            : 0,
+                    };
+
+                    agencyReports.forEach((r) => {
+                        let actual_value;
+
+                        if (r.calculated_value !== null) {
+                            actual_value = r.calculated_value;
+                        } else if (
+                            r.value_a !== null &&
+                            r.value_b !== null &&
+                            r.value_b !== 0
+                        ) {
+                            actual_value = (r.value_a / r.value_b) * 100;
+                        } else {
+                            actual_value = r.value_a;
+                        }
+
+                        data.push({
+                            agency_id: agency.id,
+                            agency_name: agency.agency_name,
+                            indicators_year: r.fiscal_year,
+                            indicators_id: r.indicator_id,
+                            quarter: r.quarter,
+                            indicators_code: r.indicators_code,
+                            indicators_name: r.indicators_name,
+                            value_a: r.value_a,
+                            value_b: r.value_b,
+                            formula: r.formula,
+                            actual_value: Number(actual_value),
+                            target_value: r.target_value,
+                            operator: r.operator,
+                            passed: checkPassed(actual_value, r.target_value, r.operator),
+                        });
+                    });
+                });
+
+                res.json({
+                    "indicators ทั้งหมด": indicators.length,
+                    ...summary,
+                    data,
+                });
+            });
+        });
+    });
+});
+
+
+// app.get("/api/indicators", async (req, res) => {
+//   try {
+//     const [rows] = await db.execute(
+//       "SELECT id, code, name, type, year FROM indicators ORDER BY id DESC"
+//     );
+//     res.json(rows);
+//   } catch (error) {
+//     console.error("DB error:", error);
+//     res.status(500).json({ message: "Error fetching indicators" });
+//   }
+// });
+
+app.get("/api/indicators", jsonParser, (req, res, next) => {
+    db.query(
+        "SELECT id, code, name, type, year FROM indicators ORDER BY id DESC",
+        (err, rows, fields) => {
+            if (err) {
+                console.error("DB error:", err);
+                return res.status(500).json({ message: "Error fetching indicators" });
+            }
+
+            res.json(rows);
+        }
+    );
+});
+
+app.get("/api/indicator/:news", jsonParser, (req, res, next) => {
+    const news = req.params.news;
+
+    const sql = `
+    SELECT 
+      i.id,
+      i.code,
+      i.name,
+      i.type,
+      i.year,
+      i.target_value,
+      i.formula,
+      i.operator,
+      i.description,
+      i.variable_b_name,
+      i.variable_a_name,
+      i.detail,
+      i.form
+    FROM indicators i
+    INNER JOIN indicator_agency ia 
+      ON ia.indicator_id = i.id
+    WHERE ia.agency_id = ?
+    GROUP BY 
+      i.id, i.code, i.name, i.type, i.year
+    ORDER BY i.id ASC
+  `;
+
+    db.query(sql, [news], (err, rows, fields) => {
+        if (err) {
+            console.error("DB error:", err);
+            return res.status(500).json({ message: "Error fetching indicators" });
+        }
+
+        res.json(rows);
+    });
+});
+
+app.get("/api/check/:news", jsonParser, (req, res, next) => {
+    const news = req.params.news;
+
+    const sql = `
+    SELECT *
+    FROM v_status
+    WHERE agency_id = ?
+    ORDER BY indicator_id ASC
+  `;
+
+    db.query(sql, [news], (err, rows, fields) => {
+        if (err) {
+            console.error("DB error:", err);
+            return res.status(500).json({ message: "Error fetching indicators" });
+        }
+
+        res.json(rows);
+    });
+});
+
+app.post("/api/reports", jsonParser, (req, res, next) => {
+    const {
+        indicator_id,
+        agency_id,
+        fiscal_year,
+        quarter,
+        value_a,
+        value_b,
+        form_data,
+        updated_by
+    } = req.body;
+
+    const sql = `
+    INSERT INTO indicator_reports
+      (indicator_id, agency_id, fiscal_year, quarter, value_a, value_b, form_data, updated_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE 
+      value_a = VALUES(value_a),
+      value_b = VALUES(value_b),
+      form_data = VALUES(form_data),
+      updated_by = VALUES(updated_by)
+  `;
+
+    const params = [
+        indicator_id,
+        agency_id,
+        fiscal_year,
+        quarter,
+        value_a,
+        value_b,
+        JSON.stringify(form_data ?? {}),
+        updated_by
+    ];
+
+    db.query(sql, params, (err, result) => {
+        if (err) {
+            console.error("DB error:", err);
+            return res.status(500).json({ error: err.message });
+        }
+
+        res.json({ message: "Saved & calculated automatically" });
+    });
+});
+
+app.get("/api/summary", jsonParser, (req, res, next) => {
+    const { year, quarter, agency_id, kpi_code } = req.query;
+
+    let where = `WHERE kr.fiscal_year = ? AND kr.quarter = ?`;
+    const params = [year, quarter];
+
+    if (agency_id) {
+        where += ` AND kr.agency_id = ?`;
+        params.push(agency_id);
+    }
+
+    if (kpi_code) {
+        where += ` AND kr.indicator_id = ?`;
+        params.push(kpi_code);
+    }
+
+    const sql = `
+    SELECT 
+      a.id AS agency_id,
+      a.agency_name AS agency_name,
+      i.code AS kpi_code,
+      i.name AS kpi_name,
+      kr.value_a,
+      kr.value_b,
+      i.formula,
+      i.target_value,
+      i.operator
+    FROM indicator_reports kr
+    JOIN agencies a ON kr.agency_id = a.id
+    JOIN indicators i ON kr.indicator_id = i.code
+    ${where}
+    ORDER BY a.id, i.code
+  `;
+
+    db.query(sql, params, (err, rows, fields) => {
+        if (err) {
+            console.error("DB error:", err);
+            return res.status(500).json({ error: "server error" });
+        }
+
+        const result = rows.map((r) => {
+            const actual_value = calculateValue(r.value_a, r.value_b, r.formula);
+
+            // แก้ escape operator
+            const operator = r.operator
+                .replace("\\u003E", ">")
+                .replace("\\u003C", "<");
+
+            let passed = 0;
+            if (actual_value !== null) {
+                const t = Number(r.target_value);
+
+                switch (operator) {
+                    case ">=":
+                        passed = actual_value >= t ? 1 : 0;
+                        break;
+                    case "<=":
+                        passed = actual_value <= t ? 1 : 0;
+                        break;
+                    case ">":
+                        passed = actual_value > t ? 1 : 0;
+                        break;
+                    case "<":
+                        passed = actual_value < t ? 1 : 0;
+                        break;
+                }
+            }
+
+            return {
+                ...r,
+                operator,
+                actual_value,
+                passed,
+            };
+        });
+
+        res.json(result);
+    });
+});
+
+app.post("/api/forms/bulk", async (req, res) => {
+    const data = req.body; // array
+
+    if (!Array.isArray(data)) {
+        return res.status(400).json({ message: "data must be array" });
+    }
+
+    const sql = `
+    INSERT INTO indicator_reports
+    (indicator_id, agency_id, fiscal_year, quarter,
+     value_a, value_b, calculated_value, form_data,
+     status, updated_by, updated_at)
+    VALUES ?
+  `;
+
+    try {
+        const values = data.map(item => ([
+            item.indicator_id,
+            item.agency_id,
+            item.fiscal_year,
+            item.quarter,
+            item.value_a,
+            item.value_b,
+            item.calculated_value,
+            item.form_data ? JSON.stringify(item.form_data) : null,
+            item.status,
+            item.updated_by,
+            new Date(),
+        ]));
+
+        const [result] = await pool.query(sql, [values]);
+
+        res.json({
+            success: true,
+            inserted: result.affectedRows,
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+app.get("/api/indicatorde/:year/:id/:ind", jsonParser, (req, res, next) => {
+    const year = req.params.year;
+    const id = req.params.id;
+    const ind = req.params.ind;
+    db.query(
+        `SELECT * FROM ipr WHERE indicator_id = ${ind} AND fiscal_year = ${year} AND agency_id = ${id} ORDER BY quarter ASC`,
+        (err, rows, fields) => {
+            if (err) {
+                console.error("DB error:", err);
+                return res.status(500).json({ message: "Error fetching indicators" });
+            }
+
+            res.json(rows);
+        }
+    );
+});
 
 const Port = process.env.PORT || 5000
 app.listen(Port, jsonParser, () => {

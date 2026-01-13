@@ -1529,6 +1529,63 @@ app.get("/api/indicatorde/:year/:id/:ind", jsonParser, (req, res, next) => {
     );
 });
 
+app.put("/api/indicator-reports/:id", (req, res) => {
+  const id = req.params.id;
+
+  const {
+    value_a,
+    value_b,
+    calculated_value,
+    form_data,
+    status,
+    updated_by,
+  } = req.body;
+
+  const sql = `
+    UPDATE indicator_reports
+    SET
+      value_a = ?,
+      value_b = ?,
+      calculated_value = ?,
+      form_data = ?,
+      status = ?,
+      updated_by = ?,
+      updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  `;
+
+  const params = [
+    value_a,
+    value_b,
+    calculated_value,
+    form_data ? JSON.stringify(form_data) : null,
+    status,
+    updated_by,
+    id,
+  ];
+
+  db.query(sql, params, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: "เกิดข้อผิดพลาด",
+        error: err.message,
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        message: "ไม่พบข้อมูลที่ต้องการแก้ไข",
+      });
+    }
+
+    res.json({
+      message: "แก้ไขข้อมูลสำเร็จ",
+      affectedRows: result.affectedRows,
+    });
+  });
+});
+
 const Port = process.env.PORT || 5000
 app.listen(Port, jsonParser, () => {
     console.log(`start server on Port ${Port}`)

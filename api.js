@@ -1210,7 +1210,7 @@ app.get("/api/kpi-summary", jsonParser, (req, res) => {
                         return checkPassed(actual_value, r.target_value, r.operator);
                     }).length;
 
-                    summary[agency.id] = {
+                    summary[agency.agency_name] = {
                         sent: totalIndicators,
                         pass: passedIndicators,
                         persent: totalIndicators
@@ -1290,7 +1290,7 @@ app.get("/api/indicators", jsonParser, (req, res, next) => {
 });
 
 app.get("/api/indicator/:news", jsonParser, (req, res, next) => {
-    const news = req.params.news;
+    var news = req.params.news;
 
     const sql = `
     SELECT 
@@ -1326,6 +1326,41 @@ app.get("/api/indicator/:news", jsonParser, (req, res, next) => {
     });
 });
 
+app.get("/api/indicatores", jsonParser, (req, res, next) => {
+
+    const sql = `
+    SELECT 
+      i.id,
+      i.code,
+      i.name,
+      i.type,
+      i.year,
+      i.target_value,
+      i.formula,
+      i.operator,
+      i.description,
+      i.variable_b_name,
+      i.variable_a_name,
+      i.detail,
+      i.form
+    FROM indicators i
+    INNER JOIN indicator_agency ia 
+      ON ia.indicator_id = i.id
+    GROUP BY 
+      i.id, i.code, i.name, i.type, i.year
+    ORDER BY i.id ASC
+  `;
+
+    db.query(sql, (err, rows, fields) => {
+        if (err) {
+            console.error("DB error:", err);
+            return res.status(500).json({ message: "Error fetching indicators" });
+        }
+
+        res.json(rows);
+    });
+});
+
 app.get("/api/check/:news", jsonParser, (req, res, next) => {
     const news = req.params.news;
 
@@ -1337,6 +1372,25 @@ app.get("/api/check/:news", jsonParser, (req, res, next) => {
   `;
 
     db.query(sql, [news], (err, rows, fields) => {
+        if (err) {
+            console.error("DB error:", err);
+            return res.status(500).json({ message: "Error fetching indicators" });
+        }
+
+        res.json(rows);
+    });
+});
+
+app.get("/api/checks", jsonParser, (req, res, next) => {
+    const news = req.params.news;
+
+    const sql = `
+    SELECT *
+    FROM v_status
+    ORDER BY indicator_id ASC
+  `;
+
+    db.query(sql, (err, rows, fields) => {
         if (err) {
             console.error("DB error:", err);
             return res.status(500).json({ message: "Error fetching indicators" });
@@ -1529,6 +1583,22 @@ app.get("/api/indicatorde/:year/:id/:ind", jsonParser, (req, res, next) => {
     );
 });
 
+app.get("/api/admin/indicatorde/:year/:ind", jsonParser, (req, res, next) => {
+    const year = req.params.year;
+    const ind = req.params.ind;
+    db.query(
+        `SELECT * FROM ipr WHERE indicator_id = ${ind} AND fiscal_year = ${year} ORDER BY quarter ASC`,
+        (err, rows, fields) => {
+            if (err) {
+                console.error("DB error:", err);
+                return res.status(500).json({ message: "Error fetching indicators" });
+            }
+
+            res.json(rows);
+        }
+    );
+});
+
 app.put("/api/indicator-reports/:id", (req, res) => {
   const id = req.params.id;
 
@@ -1584,6 +1654,13 @@ app.put("/api/indicator-reports/:id", (req, res) => {
       affectedRows: result.affectedRows,
     });
   });
+});
+
+app.get('/api/checking', (req, res) => {
+    // const id = req.params.id
+    db.query("SELECT * FROM checkq ORDER BY indicator_id ASC", (err, results, fields) => {
+        res.send(results)
+    })
 });
 
 const Port = process.env.PORT || 5000

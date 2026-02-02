@@ -5,6 +5,8 @@ const app = express();
 const bodyParser = require('body-parser')
 const jsonParser = bodyParser.json();
 const mysql = require('mysql2')
+const eventRoutes = require("./routes/event");
+const fileRoutes = require("./routes/file");
 const conn = mysql.createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -1600,18 +1602,18 @@ app.get("/api/admin/indicatorde/:year/:ind", jsonParser, (req, res, next) => {
 });
 
 app.put("/api/indicator-reports/:id", (req, res) => {
-  const id = req.params.id;
+    const id = req.params.id;
 
-  const {
-    value_a,
-    value_b,
-    calculated_value,
-    form_data,
-    status,
-    updated_by,
-  } = req.body;
+    const {
+        value_a,
+        value_b,
+        calculated_value,
+        form_data,
+        status,
+        updated_by,
+    } = req.body;
 
-  const sql = `
+    const sql = `
     UPDATE indicator_reports
     SET
       value_a = ?,
@@ -1624,36 +1626,36 @@ app.put("/api/indicator-reports/:id", (req, res) => {
     WHERE id = ?
   `;
 
-  const params = [
-    value_a,
-    value_b,
-    calculated_value,
-    form_data ? JSON.stringify(form_data) : null,
-    status,
-    updated_by,
-    id,
-  ];
+    const params = [
+        value_a,
+        value_b,
+        calculated_value,
+        form_data ? JSON.stringify(form_data) : null,
+        status,
+        updated_by,
+        id,
+    ];
 
-  db.query(sql, params, (err, result) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).json({
-        message: "เกิดข้อผิดพลาด",
-        error: err.message,
-      });
-    }
+    db.query(sql, params, (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({
+                message: "เกิดข้อผิดพลาด",
+                error: err.message,
+            });
+        }
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        message: "ไม่พบข้อมูลที่ต้องการแก้ไข",
-      });
-    }
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                message: "ไม่พบข้อมูลที่ต้องการแก้ไข",
+            });
+        }
 
-    res.json({
-      message: "แก้ไขข้อมูลสำเร็จ",
-      affectedRows: result.affectedRows,
+        res.json({
+            message: "แก้ไขข้อมูลสำเร็จ",
+            affectedRows: result.affectedRows,
+        });
     });
-  });
 });
 
 app.get('/api/checking', (req, res) => {
@@ -1661,6 +1663,150 @@ app.get('/api/checking', (req, res) => {
     db.query("SELECT * FROM checkq ORDER BY indicator_id ASC", (err, results, fields) => {
         res.send(results)
     })
+});
+
+app.get("/checked2/:us", jsonParser, (req, res, next) => {
+    var us = req.params.us
+    const sql = "SELECT * FROM res WHERE agency_id = ? ORDER BY id ASC;"
+    db.query(sql, [us], (req, results, fields) => {
+        res.send(results)
+    })
+})
+
+app.get("/form2/:id", jsonParser, (req, res, next) => {
+    const id = req.params.id
+    if (id || id === undefined) {
+        db.query('SELECT * FROM indicators WHERE id = ?', [id], (err, form, fields) => {
+            res.send(form);
+        })
+    } else {
+        db.query('SELECT * FROM indicators', (err, form, fields) => {
+            res.send(form);
+        })
+    }
+
+})
+
+app.get('/form2', (req, res) => {
+    // const id = req.params.id
+    db.query("SELECT * FROM checkq ORDER BY indicator_id ASC", (err, results, fields) => {
+        res.send(results)
+    })
+});
+
+app.post("/ev2/add", jsonParser, (req, res, next) => {
+    const sql = "INSERT INTO event (fm_id, ev_qur, fms_id, ev_name, ev_res, ev_status, ev_budget, ev_buded, ev_point, ev_target, ev_result , ev_problem, ev_str, ev_img, files) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    //const val = [req.body.deid, req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, "{}"];
+    const val = [req.body.fmid, req.body.qur, req.body.fmsid, req.body.evname, req.body.evres, req.body.evstatus, req.body.evbudget, req.body.evbuded, req.body.evpoint, req.body.evtarget, req.body.result, req.body.problem, req.body.str, req.body.evimg, req.body.pdf];
+    db.execute(sql, val, (err, ev, fields) => {
+        if (err) {
+            res.json({ status: "erorr", massage: err });
+            return;
+        } else {
+            res.json({ status: "ok" })
+        }
+    })
+})
+
+app.use("/api/event", eventRoutes);
+app.use("/api/file", fileRoutes);
+
+
+app.get("/queues", (req, res) => {
+  res.json([
+    {
+      orders: 1,
+      name: "1. คลินิกตรวจโรคทั่วไป",
+      waiting: 54,
+      done: 30,
+      total: 84,
+      avg_time_min: 2
+    },
+    {
+      orders: 2,
+      name: "2. คลีนิกประกันสังคม",
+      waiting: 38,
+      done: 33,
+      total: 71,
+      avg_time_min: 4
+    },
+    {
+      orders: 3,
+      name: "3. คลินิกเบิกได้จ่ายตรง/เงินสด",
+      waiting: 47,
+      done: 30,
+      total: 77,
+      avg_time_min: 4
+    },
+    {
+      orders: 4,
+      name: "4. คลินิกพรีเมี่ยม",
+      waiting: 17,
+      done: 4,
+      total: 21,
+      avg_time_min: 14
+    },
+    {
+      orders: 5,
+      name: "5. คลินิกกุมารเวชกรรม",
+      waiting: 30,
+      done: 10,
+      total: 40,
+      avg_time_min: 6
+    },
+    {
+      orders: 6,
+      name: "6. คลินิกจักษุ",
+      waiting: 43,
+      done: 6,
+      total: 49,
+      avg_time_min: 7
+    },
+    {
+      orders: 7,
+      name: "7. คลินิกอายุรกรรม",
+      waiting: 128,
+      done: 22,
+      total: 150,
+      avg_time_min: 3
+    },
+    {
+      orders: 8,
+      name: "8. คลินิกสูติกรรม",
+      waiting: 49,
+      done: 19,
+      total: 68,
+      avg_time_min: 3
+    },
+    {
+      orders: 9,
+      name: "9. คลินิกศัลยกรรมกระดูก",
+      waiting: 34,
+      done: 8,
+      total: 42,
+      avg_time_min: 8
+    },
+    {
+      orders: 10,
+      name: "10. คลินิกศัลยกรรม",
+      waiting: 67,
+      done: 15,
+      total: 82,
+      avg_time_min: 3
+    }
+  ]);
+});
+
+app.get("/api/event", async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      "SELECT * FROM events ORDER BY id DESC"
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error("GET EVENT ERROR:", err);
+    res.status(500).json({ status: "error", message: err.message });
+  }
 });
 
 const Port = process.env.PORT || 5000

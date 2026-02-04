@@ -66,22 +66,32 @@ router.get("/", (req, res) => {
 });
 
 router.get("/res/:usid/:fmid", (req, res) => {
-  const usid = req.params.usid
-  const fmid = req.params.fmid
+  const usid = req.params.usid;
+  const fmid = req.params.fmid;
 
-  db.query(
-    "SELECT * FROM events WHERE submitid = ? AND fmid = ? ORDER BY created_at DESC", [usid, fmid], 
-    (err, rows) => {
-      if (err) {
-        console.error("DB error:", err);
-        return res.status(500).json({
-          status: "error",
-          message: "Error fetching events",
-        });
-      }
-      res.json(rows);
+  let sql = "";
+  let params = [];
+
+  if (Number(usid) === 14) {
+    // usid = 14 ไม่กรอง submitid
+    sql = "SELECT * FROM events WHERE fmid = ? ORDER BY created_at DESC";
+    params = [fmid];
+  } else {
+    // usid อื่น ๆ กรองตาม submitid
+    sql = "SELECT * FROM events WHERE submitid = ? AND fmid = ? ORDER BY created_at DESC";
+    params = [usid, fmid];
+  }
+
+  db.query(sql, params, (err, rows) => {
+    if (err) {
+      console.error("DB error:", err);
+      return res.status(500).json({
+        status: "error",
+        message: "Error fetching events",
+      });
     }
-  );
+    res.json(rows);
+  });
 });
 
 /* ===============================

@@ -1585,20 +1585,32 @@ app.get("/api/indicatorde/:year/:id/:ind", jsonParser, (req, res, next) => {
     );
 });
 
-app.get("/api/admin/indicatorde/:year/:ind", jsonParser, (req, res, next) => {
-    const year = req.params.year;
-    const ind = req.params.ind;
-    db.query(
-        `SELECT * FROM ipr WHERE indicator_id = ${ind} AND fiscal_year = ${year} ORDER BY quarter ASC`,
-        (err, rows, fields) => {
-            if (err) {
-                console.error("DB error:", err);
-                return res.status(500).json({ message: "Error fetching indicators" });
-            }
+app.get("/api/admin/indicatorde/:year/:ind/:agid?", jsonParser, (req, res) => {
+    const { year, ind, agid } = req.params;
 
-            res.json(rows);
+    let sql = `
+        SELECT *
+        FROM ipr
+        WHERE indicator_id = ?
+          AND fiscal_year = ?
+    `;
+    const params = [ind, year];
+
+    if (agid || agid === "") {
+        sql += " AND agency_id = ?";
+        params.push(agid);
+    }
+
+    sql += " ORDER BY quarter ASC";
+
+    db.query(sql, params, (err, rows) => {
+        if (err) {
+            console.error("DB error:", err);
+            return res.status(500).json({ message: "Error fetching indicators" });
         }
-    );
+
+        res.json(rows);
+    });
 });
 
 app.put("/api/indicator-reports/:id", (req, res) => {

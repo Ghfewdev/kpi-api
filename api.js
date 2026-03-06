@@ -1723,102 +1723,16 @@ app.post("/ev2/add", jsonParser, (req, res, next) => {
 app.use("/api/event", eventRoutes);
 app.use("/api/file", fileRoutes);
 
-
-app.get("/queues", (req, res) => {
-  res.json([
-    {
-      orders: 1,
-      name: "1. คลินิกตรวจโรคทั่วไป",
-      waiting: 54,
-      done: 30,
-      total: 84,
-      avg_time_min: 2
-    },
-    {
-      orders: 2,
-      name: "2. คลีนิกประกันสังคม",
-      waiting: 38,
-      done: 33,
-      total: 71,
-      avg_time_min: 4
-    },
-    {
-      orders: 3,
-      name: "3. คลินิกเบิกได้จ่ายตรง/เงินสด",
-      waiting: 47,
-      done: 30,
-      total: 77,
-      avg_time_min: 4
-    },
-    {
-      orders: 4,
-      name: "4. คลินิกพรีเมี่ยม",
-      waiting: 17,
-      done: 4,
-      total: 21,
-      avg_time_min: 14
-    },
-    {
-      orders: 5,
-      name: "5. คลินิกกุมารเวชกรรม",
-      waiting: 30,
-      done: 10,
-      total: 40,
-      avg_time_min: 6
-    },
-    {
-      orders: 6,
-      name: "6. คลินิกจักษุ",
-      waiting: 43,
-      done: 6,
-      total: 49,
-      avg_time_min: 7
-    },
-    {
-      orders: 7,
-      name: "7. คลินิกอายุรกรรม",
-      waiting: 128,
-      done: 22,
-      total: 150,
-      avg_time_min: 3
-    },
-    {
-      orders: 8,
-      name: "8. คลินิกสูติกรรม",
-      waiting: 49,
-      done: 19,
-      total: 68,
-      avg_time_min: 3
-    },
-    {
-      orders: 9,
-      name: "9. คลินิกศัลยกรรมกระดูก",
-      waiting: 34,
-      done: 8,
-      total: 42,
-      avg_time_min: 8
-    },
-    {
-      orders: 10,
-      name: "10. คลินิกศัลยกรรม",
-      waiting: 67,
-      done: 15,
-      total: 82,
-      avg_time_min: 3
-    }
-  ]);
-});
-
 app.get("/api/event", async (req, res) => {
-  try {
-    const [rows] = await db.query(
-      "SELECT * FROM events ORDER BY id DESC"
-    );
-    res.json(rows);
-  } catch (err) {
-    console.error("GET EVENT ERROR:", err);
-    res.status(500).json({ status: "error", message: err.message });
-  }
+    try {
+        const [rows] = await db.query(
+            "SELECT * FROM events ORDER BY id DESC"
+        );
+        res.json(rows);
+    } catch (err) {
+        console.error("GET EVENT ERROR:", err);
+        res.status(500).json({ status: "error", message: err.message });
+    }
 });
 
 const Port = process.env.PORT || 5000

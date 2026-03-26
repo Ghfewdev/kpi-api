@@ -1170,14 +1170,23 @@ app.get("/api/kpi-summary", jsonParser, (req, res) => {
             // 4️⃣ โหลด reports
             const sql = `
         SELECT
-          r.*, 
-          i.code AS indicators_code, 
-          i.name AS indicators_name,
-          i.formula, 
-          i.target_value, 
-          i.operator
-        FROM indicator_reports r
-        JOIN indicators i ON r.indicator_id = i.id
+    r.*,
+    i.code AS indicators_code,
+    i.name AS indicators_name,
+    i.formula,
+    i.target_value,
+    i.operator,
+    i.type,
+    ia.total AS agency_total
+FROM indicator_reports r
+JOIN indicators i 
+    ON r.indicator_id = i.id
+LEFT JOIN (
+    SELECT agency_id, COUNT(*) AS total
+    FROM indicator_agency
+    GROUP BY agency_id
+) ia 
+    ON r.agency_id = ia.agency_id
         ${where}
       `;
 
@@ -1213,6 +1222,7 @@ app.get("/api/kpi-summary", jsonParser, (req, res) => {
                     }).length;
 
                     summary[agency.agency_name] = {
+                        must: agencyReports[0]?.agency_total,
                         sent: totalIndicators,
                         pass: passedIndicators,
                         persent: totalIndicators
@@ -1250,12 +1260,27 @@ app.get("/api/kpi-summary", jsonParser, (req, res) => {
                             target_value: r.target_value,
                             operator: r.operator,
                             passed: checkPassed(actual_value, r.target_value, r.operator),
+                            type: r.type
                         });
                     });
                 });
 
                 res.json({
                     "indicators ทั้งหมด": indicators.length,
+                    type: {
+                        "type1": indicators.filter(
+                        (r) => r.type === "1.1"
+                    ).length,
+                        "type2": indicators.filter(
+                        (r) => r.type === "1.2"
+                    ).length,
+                        "type3": indicators.filter(
+                        (r) => r.type === "2"
+                    ).length,
+                        "type4": indicators.filter(
+                        (r) => r.type === "3"
+                    ).length,
+                    },
                     ...summary,
                     data,
                 });
